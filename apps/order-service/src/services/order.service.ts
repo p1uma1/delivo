@@ -1,6 +1,5 @@
-import { orderRepository } from '../repositories/order.repository';
+import { orderRepository, OrderStatus } from '../repositories/order.repository';
 import { publishEvent, NotFoundError, ValidationError } from '@delivo/shared';
-import { OrderStatus } from '@prisma/client';
 
 interface CreateOrderInput {
   customerId: string;

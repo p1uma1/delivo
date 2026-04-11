@@ -1,6 +1,5 @@
-import { deliveryRepository } from '../repositories/delivery.repository';
+import { deliveryRepository, DeliveryStatus } from '../repositories/delivery.repository';
 import { publishEvent, NotFoundError, ValidationError } from '@delivo/shared';
-import { DeliveryStatus } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 
 export class DeliveryService {
