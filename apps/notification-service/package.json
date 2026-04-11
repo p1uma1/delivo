@@ -1,0 +1,19 @@
+{
+  "name": "@delivo/notification-service",
+  "version": "1.0.0",
+  "description": "Delivo Notification Service — event-driven alerts",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+  },
+  "dependencies": {
+    "@delivo/shared": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,0 +1,59 @@
+# Docker Compose override for local development
+# Enables hot-reload and exposes internal service ports for direct access
+
+version: '3.9'
+
+services:
+  api-gateway:
+    build:
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./apps/api-gateway/src:/app/apps/api-gateway/src
+      - ./packages/shared/src:/app/packages/shared/src
+
+  user-service:
+    build:
+      target: dev
+    command: npm run dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./apps/user-service/src:/app/apps/user-service/src
+      - ./packages/shared/src:/app/packages/shared/src
+
+  order-service:
+    build:
+      target: dev
+    command: npm run dev
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./apps/order-service/src:/app/apps/order-service/src
+      - ./packages/shared/src:/app/packages/shared/src
+
+  delivery-service:
+    build:
+      target: dev
+    command: npm run dev
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./apps/delivery-service/src:/app/apps/delivery-service/src
+      - ./packages/shared/src:/app/packages/shared/src
+
+  notification-service:
+    build:
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./apps/notification-service/src:/app/apps/notification-service/src
+      - ./packages/shared/src:/app/packages/shared/src
+
+  web-app:
+    build:
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./apps/web/src:/app/apps/web/src
+      - ./apps/web/public:/app/apps/web/public

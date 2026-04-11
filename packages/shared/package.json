@@ -1,0 +1,24 @@
+{
+  "name": "@delivo/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities for Delivo microservices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.4",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "winston": "^3.13.0"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.5",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  }
+}

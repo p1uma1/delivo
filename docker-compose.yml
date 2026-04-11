@@ -1,0 +1,152 @@
+version: '3.9'
+
+networks:
+  delivo-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  rabbitmq-data:
+
+services:
+  # ─── Infrastructure ──────────────────────────────────────────────────────────
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: delivo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-delivo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-delivopassword}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - delivo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-delivo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: delivo-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"    # Management UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - delivo-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ─── Application Services ────────────────────────────────────────────────────
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    container_name: delivo-api-gateway
+    restart: unless-stopped
+    ports:
+      - "${API_GATEWAY_PORT:-3000}:3000"
+    env_file: .env
+    environment:
+      PORT: 3000
+    depends_on:
+      - user-service
+      - order-service
+      - delivery-service
+    networks:
+      - delivo-network
+
+  user-service:
+    build:
+      context: .
+      dockerfile: apps/user-service/Dockerfile
+    container_name: delivo-user-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3001
+      DATABASE_URL: ${USER_SERVICE_DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - delivo-network
+
+  order-service:
+    build:
+      context: .
+      dockerfile: apps/order-service/Dockerfile
+    container_name: delivo-order-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3002
+      DATABASE_URL: ${ORDER_SERVICE_DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - delivo-network
+
+  delivery-service:
+    build:
+      context: .
+      dockerfile: apps/delivery-service/Dockerfile
+    container_name: delivo-delivery-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3003
+      DATABASE_URL: ${DELIVERY_SERVICE_DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - delivo-network
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: apps/notification-service/Dockerfile
+    container_name: delivo-notification-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: ${NOTIFICATION_SERVICE_DATABASE_URL}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - delivo-network
+
+  # ─── Frontend ───────────────────────────────────────────────────────────────
+
+  web-app:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: delivo-web-app
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    env_file: .env
+    depends_on:
+      - api-gateway
+    networks:
+      - delivo-network
