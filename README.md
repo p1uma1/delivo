@@ -1,6 +1,6 @@
 # 🚚 Delivo — Smart Last-Mile Delivery Platform
 
-A cloud-native, microservices-based delivery management system for small and medium businesses. Built for scalability, high availability, and cloud deployment readiness.
+A delivery management system for small and medium businesses.
 
 ---
 
