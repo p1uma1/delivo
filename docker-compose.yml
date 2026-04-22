@@ -32,7 +32,7 @@ services:
   api-gateway:
     build:
       context: .
-      dockerfile: apps/api-gateway/Dockerfile
+      dockerfile: backend/api-gateway/Dockerfile
     container_name: delivo-api-gateway
     restart: unless-stopped
     ports:
@@ -50,7 +50,7 @@ services:
   user-service:
     build:
       context: .
-      dockerfile: apps/user-service/Dockerfile
+      dockerfile: backend/services/user-service/Dockerfile
     container_name: delivo-user-service
     restart: unless-stopped
     env_file: .env
@@ -65,7 +65,7 @@ services:
   order-service:
     build:
       context: .
-      dockerfile: apps/order-service/Dockerfile
+      dockerfile: backend/services/order-service/Dockerfile
     container_name: delivo-order-service
     restart: unless-stopped
     env_file: .env
@@ -80,7 +80,7 @@ services:
   delivery-service:
     build:
       context: .
-      dockerfile: apps/delivery-service/Dockerfile
+      dockerfile: backend/services/delivery-service/Dockerfile
     container_name: delivo-delivery-service
     restart: unless-stopped
     env_file: .env
@@ -95,7 +95,7 @@ services:
   notification-service:
     build:
       context: .
-      dockerfile: apps/notification-service/Dockerfile
+      dockerfile: backend/services/notification-service/Dockerfile
     container_name: delivo-notification-service
     restart: unless-stopped
     env_file: .env
