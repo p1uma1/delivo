@@ -22,7 +22,7 @@ export async function connectRabbitMQ(retries = 10): Promise<RabbitMQClient> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       logger.info(`Connecting to RabbitMQ (attempt ${attempt}/${retries})...`);
-      const connection = await amqplib.connect(url);
+      const connection = await amqplib.connect(url) as any;
       const channel = await connection.createChannel();
 
       // Declare the main topic exchange
@@ -40,9 +40,10 @@ export async function connectRabbitMQ(retries = 10): Promise<RabbitMQClient> {
         setTimeout(() => connectRabbitMQ(), RECONNECT_DELAY);
       });
 
-      client = { connection, channel };
+      const newClient = { connection, channel };
+      client = newClient;
       logger.info('RabbitMQ connected successfully');
-      return client;
+      return newClient;
     } catch (err) {
       logger.warn(`RabbitMQ connection failed, retrying in ${RECONNECT_DELAY / 1000}s...`, {
         attempt,
