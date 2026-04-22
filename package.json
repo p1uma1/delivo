@@ -4,7 +4,9 @@
   "description": "Smart Last-Mile Delivery Platform — Microservices Monorepo",
   "private": true,
   "workspaces": [
-    "packages/*",
+    "backend/packages/*",
+    "backend/services/*",
+    "backend/api-gateway",
     "apps/*"
   ],
   "scripts": {

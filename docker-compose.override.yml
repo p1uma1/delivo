@@ -9,8 +9,8 @@ services:
       target: dev
     command: npm run dev
     volumes:
-      - ./apps/api-gateway/src:/app/apps/api-gateway/src
-      - ./packages/shared/src:/app/packages/shared/src
+      - ./backend/api-gateway/src:/app/backend/api-gateway/src
+      - ./backend/packages/shared/src:/app/backend/packages/shared/src
 
   user-service:
     build:
@@ -19,8 +19,8 @@ services:
     ports:
       - "3001:3001"
     volumes:
-      - ./apps/user-service/src:/app/apps/user-service/src
-      - ./packages/shared/src:/app/packages/shared/src
+      - ./backend/services/user-service/src:/app/backend/services/user-service/src
+      - ./backend/packages/shared/src:/app/backend/packages/shared/src
 
   order-service:
     build:
@@ -29,8 +29,8 @@ services:
     ports:
       - "3002:3002"
     volumes:
-      - ./apps/order-service/src:/app/apps/order-service/src
-      - ./packages/shared/src:/app/packages/shared/src
+      - ./backend/services/order-service/src:/app/backend/services/order-service/src
+      - ./backend/packages/shared/src:/app/backend/packages/shared/src
 
   delivery-service:
     build:
@@ -39,16 +39,16 @@ services:
     ports:
       - "3003:3003"
     volumes:
-      - ./apps/delivery-service/src:/app/apps/delivery-service/src
-      - ./packages/shared/src:/app/packages/shared/src
+      - ./backend/services/delivery-service/src:/app/backend/services/delivery-service/src
+      - ./backend/packages/shared/src:/app/backend/packages/shared/src
 
   notification-service:
     build:
       target: dev
     command: npm run dev
     volumes:
-      - ./apps/notification-service/src:/app/apps/notification-service/src
-      - ./packages/shared/src:/app/packages/shared/src
+      - ./backend/services/notification-service/src:/app/backend/services/notification-service/src
+      - ./backend/packages/shared/src:/app/backend/packages/shared/src
 
   web-app:
     build:
