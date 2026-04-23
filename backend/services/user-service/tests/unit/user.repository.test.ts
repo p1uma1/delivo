@@ -46,20 +46,24 @@ describe('UserRepository', () => {
 
   describe('create', () => {
     it('should successfully insert a new user and return it', async () => {
-      (db.query as jest.Mock).mockResolvedValue({
-        rows: [{
-          ...mockUserRow,
-          is_active: true,
-          created_at: new Date()
-        }],
-      });
-
       const userData = {
         email: 'new@example.com',
         password: 'password123',
         name: 'New User',
         role: 'customer',
       };
+
+      (db.query as jest.Mock).mockResolvedValue({
+        rows: [{
+          id: 'user-2',
+          email: userData.email,
+          password: userData.password,
+          name: userData.name,
+          role: userData.role,
+          is_active: true,
+          created_at: new Date(),
+        }],
+      });
 
       const result = await userRepository.create(userData);
 

@@ -40,14 +40,15 @@ export class UserRepository {
     password?: string;
     name?: string;
     role: string;
+    googleId?: string;
   }): Promise<UserWithoutPassword> {
     try {
-      const { email, password, name, role } = data;
+      const { email, password, name, role, googleId } = data;
       const res = await query(
-        `INSERT INTO users (email, password, name, role, is_active)
-         VALUES ($1, $2, $3, $4, true)
-         RETURNING id, email, name, role, is_active as "isActive", created_at as "createdAt"`,
-        [email, password, name, role]
+        `INSERT INTO users (email, password, name, role, google_id, is_active)
+         VALUES ($1, $2, $3, $4, $5, true)
+         RETURNING id, email, name, role, google_id as "googleId", is_active as "isActive", created_at as "createdAt"`,
+        [email, password ?? null, name, role, googleId ?? null]
       );
       return res.rows[0];
     } catch (err: any) {
@@ -72,6 +73,23 @@ export class UserRepository {
     }
   }
 
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    try {
+      const res = await query('SELECT * FROM users WHERE google_id = $1', [googleId]);
+      return this._mapUser(res.rows[0]);
+    } catch (err: any) {
+      return handleDbError(err);
+    }
+  }
+
+  async linkGoogleId(userId: string, googleId: string): Promise<void> {
+    try {
+      await query('UPDATE users SET google_id = $1 WHERE id = $2', [googleId, userId]);
+    } catch (err: any) {
+      return handleDbError(err);
+    }
+  }
+
   async findAllRiders(): Promise<UserWithoutPassword[]> {
     try {
       const res = await query(
@@ -84,6 +102,8 @@ export class UserRepository {
       return handleDbError(err);
     }
   }
+
+
 
   // ─── Refresh Token CRUD ──────────────────────────────────────────────────────
 
@@ -130,6 +150,8 @@ export class UserRepository {
     }
   }
 
+
+
   // ─── Private Helpers ─────────────────────────────────────────────────────────
 
   private _mapUser(row: any): User | null {
@@ -139,6 +161,7 @@ export class UserRepository {
       email: row.email,
       password: row.password,
       name: row.name,
+      googleId: row.google_id,
       role: row.role,
       isActive: row.is_active,
       createdAt: row.created_at,
