@@ -22,7 +22,7 @@ export class UserController {
         throw new ValidationError('At least one field (name, phone) must be provided');
       }
 
-      const user = await userService.updateProfile(userId, { name, phone });
+      const user = await userService.updateProfile(userId, { name });
       res.json({ success: true, data: { user } });
     } catch (err) {
       next(err);

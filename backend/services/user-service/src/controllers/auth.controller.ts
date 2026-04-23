@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service';
+import { googleAuthService } from '../services/google-auth.service';
 import { ValidationError } from '@delivo/shared';
 
 const REFRESH_COOKIE = 'refreshToken';
@@ -73,6 +74,26 @@ export class AuthController {
       }
       res.clearCookie(REFRESH_COOKIE);
       res.json({ success: true, data: { message: 'Logged out successfully' } });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // POST /auth/google
+  async loginWithGoogle(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { idToken, role } = req.body;
+      if (!idToken) {
+        throw new ValidationError('Google idToken is required');
+      }
+
+      const { accessToken, refreshToken, user } = await googleAuthService.loginWithGoogle({
+        idToken,
+        role,
+      });
+
+      res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
+      res.json({ success: true, data: { accessToken, user } });
     } catch (err) {
       next(err);
     }

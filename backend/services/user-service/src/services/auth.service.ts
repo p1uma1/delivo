@@ -1,5 +1,11 @@
 import bcrypt from 'bcryptjs';
-import { userRepository, UserWithoutPassword } from '../repositories/user.repository';
+import { userRepository } from '../repositories/user.repository';
+import {
+  RegisterInput,
+  LoginInput,
+  AuthTokens,
+  UserWithoutPassword,
+} from '../types/user.types';
 import {
   signAccessToken,
   signRefreshToken,
@@ -12,30 +18,10 @@ import {
 
 const SALT_ROUNDS = 12;
 
-interface RegisterInput {
-  email: string;
-  password: string;
-  name: string;
-  phone?: string;
-  role?: 'admin' | 'rider' | 'customer';
-}
-
-interface LoginInput {
-  email: string;
-  password: string;
-}
-
-interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-  user: UserWithoutPassword;
-}
-
 export class AuthService {
   async register(input: RegisterInput): Promise<AuthTokens> {
     const { email, password, name, phone, role = 'customer' } = input;
 
-    // Check for existing user
     const existing = await userRepository.findByEmail(email);
     if (existing) {
       throw new ConflictError('Email already registered');
@@ -51,17 +37,15 @@ export class AuthService {
       email,
       password: hashedPassword,
       name,
-      phone,
       role,
     });
 
-    // Publish event for other services
-    await publishEvent('user.created', {
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    });
+    // await publishEvent('user.created', {
+    //   userId: user.id,
+    //   email: user.email,
+    //   name: user.name,
+    //   role: user.role,
+    // });
 
     const tokens = await this._issueTokens(user.id, user.email, user.role);
     return { ...tokens, user };
@@ -79,12 +63,11 @@ export class AuthService {
       throw new UnauthorizedError('Account is deactivated');
     }
 
-    const passwordMatch = await bcrypt.compare(password, userRecord.password);
+    const passwordMatch = await bcrypt.compare(password, userRecord.password!);
     if (!passwordMatch) {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    // Revoke old refresh tokens (single active session per user for MVP)
     await userRepository.deleteAllRefreshTokensForUser(userRecord.id);
 
     const { password: _p, ...user } = userRecord;
@@ -104,7 +87,6 @@ export class AuthService {
       throw new UnauthorizedError('Refresh token has expired');
     }
 
-    // Rotate: delete old, issue new
     await userRepository.deleteRefreshToken(oldRefreshToken);
 
     const userRecord = await userRepository.findById(payload.userId);
@@ -130,7 +112,7 @@ export class AuthService {
     const refreshToken = signRefreshToken({ userId });
 
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+    expiresAt.setDate(expiresAt.getDate() + 7);
 
     await userRepository.createRefreshToken(userId, refreshToken, expiresAt);
     return { accessToken, refreshToken };

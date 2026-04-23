@@ -1,106 +1,175 @@
-// Mock types since Prisma is removed
-export interface User {
-  id: string;
-  email: string;
-  password?: string;
-  name?: string;
-  role: 'admin' | 'rider' | 'customer';
-  isActive: boolean;
-  createdAt: Date;
-}
+import { query } from '../lib/db';
+import { User, UserWithoutPassword, RefreshToken } from '../types/user.types';
+import { ConflictError, AppError } from '@delivo/shared';
 
-export interface RefreshToken {
-  id: string;
-  userId: string;
-  token: string;
-  expiresAt: Date;
-  createdAt: Date;
-}
+// ─── PostgreSQL Error Codes ───────────────────────────────────────────────────
+const PG_UNIQUE_VIOLATION = '23505';
 
-export type UserWithoutPassword = Omit<User, 'password'>;
-
-// In-memory stores
-const users: User[] = [
-  {
-    id: 'admin-1',
-    email: 'admin@delivo.com',
-    password: '$2a$10$YourHashedPasswordStub', // In real world, bcrypt hash of 'password123'
-    name: 'Main Admin',
-    role: 'admin',
-    isActive: true,
-    createdAt: new Date(),
+function handleDbError(err: any): never {
+  console.error('DATABASE ERROR:', err);
+  if (err.code === PG_UNIQUE_VIOLATION) {
+    throw new ConflictError('A record with that value already exists');
   }
-];
-const refreshTokens: RefreshToken[] = [];
+  // Re-throw as a generic internal error for unexpected DB issues
+  throw new AppError('Database error', 500, false);
+}
 
 export class UserRepository {
   // ─── User CRUD ──────────────────────────────────────────────────────────────
 
   async findById(id: string): Promise<User | null> {
-    return users.find(u => u.id === id) || null;
+    try {
+      const res = await query('SELECT * FROM users WHERE id = $1', [id]);
+      return this._mapUser(res.rows[0]);
+    } catch (err: any) {
+      return handleDbError(err);
+    }
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return users.find(u => u.email === email) || null;
+    try {
+      const res = await query('SELECT * FROM users WHERE email = $1', [email]);
+      return this._mapUser(res.rows[0]);
+    } catch (err: any) {
+      return handleDbError(err);
+    }
   }
 
-  async create(data: any): Promise<UserWithoutPassword> {
-    const newUser: User = {
-      id: Math.random().toString(36).substring(2, 11),
-      ...data,
-      isActive: true,
-      createdAt: new Date(),
-    };
-    users.push(newUser);
-    const { password: _password, ...rest } = newUser;
-    return rest;
+  async create(data: {
+    email: string;
+    password?: string;
+    name?: string;
+    role: string;
+    googleId?: string;
+  }): Promise<UserWithoutPassword> {
+    try {
+      const { email, password, name, role, googleId } = data;
+      const res = await query(
+        `INSERT INTO users (email, password, name, role, google_id, is_active)
+         VALUES ($1, $2, $3, $4, $5, true)
+         RETURNING id, email, name, role, google_id as "googleId", is_active as "isActive", created_at as "createdAt"`,
+        [email, password ?? null, name, role, googleId ?? null]
+      );
+      return res.rows[0];
+    } catch (err: any) {
+      return handleDbError(err);
+    }
   }
 
-  async update(id: string, data: any): Promise<UserWithoutPassword> {
-    const index = users.findIndex(u => u.id === id);
-    if (index === -1) throw new Error('User not found');
-    
-    users[index] = { ...users[index], ...data };
-    const { password: _password, ...rest } = users[index];
-    return rest;
+  async update(id: string, data: Partial<User>): Promise<UserWithoutPassword> {
+    try {
+      const fields = Object.keys(data).filter(k => k !== 'id');
+      const setClause = fields.map((f, i) => `"${this._toSnakeCase(f)}" = $${i + 2}`).join(', ');
+      const values = fields.map(f => (data as any)[f]);
+
+      const res = await query(
+        `UPDATE users SET ${setClause} WHERE id = $1
+         RETURNING id, email, name, role, is_active as "isActive", created_at as "createdAt"`,
+        [id, ...values]
+      );
+      return res.rows[0];
+    } catch (err: any) {
+      return handleDbError(err);
+    }
+  }
+
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    try {
+      const res = await query('SELECT * FROM users WHERE google_id = $1', [googleId]);
+      return this._mapUser(res.rows[0]);
+    } catch (err: any) {
+      return handleDbError(err);
+    }
+  }
+
+  async linkGoogleId(userId: string, googleId: string): Promise<void> {
+    try {
+      await query('UPDATE users SET google_id = $1 WHERE id = $2', [googleId, userId]);
+    } catch (err: any) {
+      return handleDbError(err);
+    }
   }
 
   async findAllRiders(): Promise<UserWithoutPassword[]> {
-    return users
-      .filter(u => u.role === 'rider' && u.isActive)
-      .map(({ password: _p, ...rest }) => rest);
+    try {
+      const res = await query(
+        `SELECT id, email, name, role, is_active as "isActive", created_at as "createdAt"
+         FROM users WHERE role = $1 AND is_active = true`,
+        ['rider']
+      );
+      return res.rows;
+    } catch (err: any) {
+      return handleDbError(err);
+    }
   }
+
+
 
   // ─── Refresh Token CRUD ──────────────────────────────────────────────────────
 
   async createRefreshToken(userId: string, token: string, expiresAt: Date): Promise<RefreshToken> {
-    const newToken: RefreshToken = {
-      id: Math.random().toString(36).substring(2, 11),
-      userId,
-      token,
-      expiresAt,
-      createdAt: new Date(),
-    };
-    refreshTokens.push(newToken);
-    return newToken;
+    try {
+      const res = await query(
+        `INSERT INTO refresh_tokens (user_id, token, expires_at)
+         VALUES ($1, $2, $3)
+         RETURNING id, user_id as "userId", token, expires_at as "expiresAt", created_at as "createdAt"`,
+        [userId, token, expiresAt]
+      );
+      return res.rows[0];
+    } catch (err: any) {
+      return handleDbError(err);
+    }
   }
 
   async findRefreshToken(token: string): Promise<RefreshToken | null> {
-    return refreshTokens.find(t => t.token === token) || null;
+    try {
+      const res = await query(
+        `SELECT id, user_id as "userId", token, expires_at as "expiresAt", created_at as "createdAt"
+         FROM refresh_tokens WHERE token = $1`,
+        [token]
+      );
+      return res.rows[0] || null;
+    } catch (err: any) {
+      return handleDbError(err);
+    }
   }
 
   async deleteRefreshToken(token: string): Promise<void> {
-    const index = refreshTokens.findIndex(t => t.token === token);
-    if (index !== -1) refreshTokens.splice(index, 1);
+    try {
+      await query('DELETE FROM refresh_tokens WHERE token = $1', [token]);
+    } catch (err: any) {
+      return handleDbError(err);
+    }
   }
 
   async deleteAllRefreshTokensForUser(userId: string): Promise<void> {
-    let i = refreshTokens.length;
-    while (i--) {
-      if (refreshTokens[i].userId === userId) {
-        refreshTokens.splice(i, 1);
-      }
+    try {
+      await query('DELETE FROM refresh_tokens WHERE user_id = $1', [userId]);
+    } catch (err: any) {
+      return handleDbError(err);
     }
+  }
+
+
+
+  // ─── Private Helpers ─────────────────────────────────────────────────────────
+
+  private _mapUser(row: any): User | null {
+    if (!row) return null;
+    return {
+      id: row.id,
+      email: row.email,
+      password: row.password,
+      name: row.name,
+      googleId: row.google_id,
+      role: row.role,
+      isActive: row.is_active,
+      createdAt: row.created_at,
+    };
+  }
+
+  private _toSnakeCase(str: string): string {
+    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
   }
 }
 

@@ -15,4 +15,7 @@ router.post('/refresh', (req, res, next) => authController.refresh(req, res, nex
 // POST /auth/logout
 router.post('/logout', (req, res, next) => authController.logout(req, res, next));
 
+// POST /auth/google — Google OAuth (send idToken from Google SDK)
+router.post('/google', (req, res, next) => authController.loginWithGoogle(req, res, next));
+
 export default router;

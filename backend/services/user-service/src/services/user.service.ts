@@ -1,10 +1,6 @@
-import { userRepository, UserWithoutPassword } from '../repositories/user.repository';
+import { userRepository } from '../repositories/user.repository';
+import { UserWithoutPassword, UpdateProfileInput } from '../types/user.types';
 import { NotFoundError, ValidationError } from '@delivo/shared';
-
-interface UpdateProfileInput {
-  name?: string;
-  phone?: string;
-}
 
 export class UserService {
   async getProfile(userId: string): Promise<UserWithoutPassword> {
@@ -22,10 +18,7 @@ export class UserService {
       throw new ValidationError('Name cannot be empty');
     }
 
-    return userRepository.update(userId, {
-      name: input.name,
-      phone: input.phone,
-    });
+    return userRepository.update(userId, { name: input.name });
   }
 
   async listRiders(): Promise<UserWithoutPassword[]> {
