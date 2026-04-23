@@ -15,7 +15,7 @@ const PORT = process.env.USER_SERVICE_PORT || 3001;
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
+app.use(cors({ origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split('||') : '*', credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 

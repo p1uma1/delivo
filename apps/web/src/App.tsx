@@ -1,12 +1,24 @@
 import { useState, useEffect } from 'react'
-import { Package, Truck, Bell, User, Plus, Search, MapPin } from 'lucide-react'
+import { Package, Truck, Bell, User, Plus, Search, MapPin, LogOut } from 'lucide-react'
+import Auth from './Auth'
 
 function App() {
+  const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState({
     active: 12,
     delivered: 145,
     riders: 8
   })
+
+  // Handle Logout
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    setUser(null);
+  };
+
+  if (!user) {
+    return <Auth onSuccess={(userData) => setUser(userData)} />;
+  }
 
   return (
     <div className="app-container">
@@ -22,8 +34,17 @@ function App() {
         </nav>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <Bell size={20} color="var(--text-dim)" />
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifySelf: 'center' }}>
-            <User size={18} style={{ margin: 'auto' }} />
+          <div className="user-bar">
+            <div className="user-avatar">
+              {user.name?.[0].toUpperCase() || 'U'}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{user.name}</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'capitalize' }}>{user.role}</span>
+            </div>
+            <button className="btn-signout" onClick={handleLogout}>
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </header>
