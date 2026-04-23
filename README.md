@@ -1,4 +1,4 @@
-# 🚚 Delivo — Smart Last-Mile Delivery Platform
+# Delivo — Delivery Platform
 
 A delivery management system for small and medium businesses.
 
@@ -36,7 +36,7 @@ A delivery management system for small and medium businesses.
 
 | App | Path | Port | Description |
 |---|---|---|---|
-| **Web App** | `apps/web` | 5173 | React + Vite dashboard |
+| **Web App** | `apps/web` | 5173 | 
 | **API Gateway** | `apps/api-gateway` | 3000 | Single entry point. Proxies to all services |
 | **User Service** | `apps/user-service` | 3001 | Auth, user profiles, roles |
 | **Order Service** | `apps/order-service` | 3002 | Create & manage delivery orders |
@@ -97,11 +97,10 @@ delivo/
 
 ## Technology Stack
 
-- **Frontend:** React + Vite + TypeScript + Lucide Icons
+- **Frontend:** React + Vite + TypeScript 
 - **Backend Runtime:** Node.js 20 + TypeScript
 - **Framework:** Express.js
-- **ORM:** Prisma (per-service schemas)
-- **Database:** PostgreSQL 16
+- **Database:** PostgreSQL 
 - **Message Broker:** RabbitMQ 3.13
 - **Containers:** Docker + Docker Compose
 
@@ -110,7 +109,7 @@ delivo/
 ## Adding a New App or Service
 
 ### 1. Create the Folder
-Create a new directory in `apps/`, for example: `apps/billing-service`.
+Create a new directory in `backend/services`, for example: `services/billing-service`.
 
 ### 2. Scaffold the Service
 The easiest way is to copy the `package.json`, `tsconfig.json`, and `Dockerfile` from an existing service (like `order-service`) and update the names. Update all `Dockerfile` paths to reflect the `apps/` directory.
