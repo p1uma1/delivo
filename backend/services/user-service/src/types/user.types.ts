@@ -1,15 +1,20 @@
-// ─── Core User Entity ─────────────────────────────────────────────────────────
-// Update this interface to match your database schema changes
-
 export interface User {
   id: string;
   email: string;
-  password: string;
+  password?: string;       // ← back to optional (no password for OAuth users)
   name?: string;
+  googleId?: string;       // ← NEW
   role: UserRole;
   isActive: boolean;
   createdAt: Date;
 }
+
+// what client sends to /auth/google
+export interface GoogleAuthInput {
+  idToken: string;
+  role?: UserRole;
+}
+
 
 export type UserRole = 'admin' | 'rider' | 'customer';
 
