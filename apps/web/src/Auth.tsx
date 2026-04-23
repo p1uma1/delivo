@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Package, Mail, Lock, User as UserIcon, Shield, Chrome, ArrowRight, AlertCircle } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 import './auth.css';
 
 interface AuthProps {
@@ -28,7 +29,6 @@ const Auth: React.FC<AuthProps> = ({ onSuccess }) => {
       : { email, password, name, role };
 
     try {
-      // Note: This calls the Vite proxy which goes to the API Gateway
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,7 +41,6 @@ const Auth: React.FC<AuthProps> = ({ onSuccess }) => {
         throw new Error(result.error?.message || 'Authentication failed');
       }
 
-      // Store token (in a real app, use a more secure method or HTTP-only cookies)
       localStorage.setItem('accessToken', result.data.accessToken);
       onSuccess(result.data.user);
     } catch (err: any) {
@@ -51,8 +50,32 @@ const Auth: React.FC<AuthProps> = ({ onSuccess }) => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    setError('Google OAuth integration requires client-side SDK setup. Please use email for now.');
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          idToken: credentialResponse.credential,
+          role: role
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error?.message || 'Google authentication failed');
+      }
+
+      localStorage.setItem('accessToken', result.data.accessToken);
+      onSuccess(result.data.user);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -172,9 +195,16 @@ const Auth: React.FC<AuthProps> = ({ onSuccess }) => {
 
         <div className="auth-divider">or continue with</div>
 
-        <button className="btn-google" type="button" onClick={handleGoogleLogin}>
-          <Chrome size={20} /> Google
-        </button>
+        <div className="google-login-container" style={{ display: 'flex', justifyContent: 'center' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google login failed')}
+            theme="filled_black"
+            shape="pill"
+            text="continue_with"
+            width="100%"
+          />
+        </div>
       </div>
     </div>
   );

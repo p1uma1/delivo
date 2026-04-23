@@ -6,13 +6,22 @@ import { createLogger, globalErrorHandler, authenticateToken, NotFoundError } fr
 import { globalRateLimiter, authRateLimiter } from './middleware/rateLimiter';
 import dotenv from 'dotenv';
 import path from 'path';
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+
+const envPath = path.resolve(__dirname, '../../../.env');
+const result = dotenv.config({ path: envPath });
 
 const app = express();
 const logger = createLogger('api-gateway');
+
+if (result.error) {
+  logger.warn(`Could not load .env from ${envPath}. Falling back to system environment variables.`);
+} else {
+  logger.info(`Loaded .env from ${envPath}`);
+}
+
 const PORT = process.env.PORT || 3000;
 
-console.log(process.env.USER_SERVICE_URL);
+console.log('USER_SERVICE_URL:', process.env.USER_SERVICE_URL);
 
 // ─── Service URLs ──────────────────────────────────────────────────────────────
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user-service:3001';
@@ -32,18 +41,57 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // ─── Proxy Configuration Helper ───────────────────────────────────────────────
 const proxyOptions = (target: string, basePath: string) =>
-  createProxyMiddleware({
+  createProxyMiddleware<Request, Response>({
     target,
     changeOrigin: true,
     pathRewrite: (_path, req) => `${basePath}${req.url}`,
     on: {
-      proxyReq: fixRequestBody,
-      error: (err, _req, res) => {
-        logger.error('Proxy error', { target, error: (err as Error).message });
-        (res as Response).status(502).json({
-          success: false,
-          error: { message: 'Service temporarily unavailable', statusCode: 502 },
+      proxyReq: (proxyReq, req, _res) => {
+        fixRequestBody(proxyReq, req);
+
+        logger.info('Proxy request', {
+          method: req.method,
+          originalUrl: req.originalUrl,
+          incomingUrl: req.url,
+          basePath,
+          target,
+          forwardedPath: proxyReq.path,
+          finalUrl: `${target}${proxyReq.path}`,
+          headers: {
+            'content-type': req.headers['content-type'],
+            authorization: req.headers.authorization
+              ? `${req.headers.authorization.slice(0, 20)}...`
+              : undefined,
+          },
         });
+      },
+
+      proxyRes: (proxyRes, req) => {
+        logger.info('Proxy response', {
+          method: req.method,
+          originalUrl: req.originalUrl,
+          statusCode: proxyRes.statusCode,
+          target,
+        });
+      },
+
+      error: (err, req, res) => {
+        logger.error('Proxy error', {
+          method: req.method,
+          originalUrl: req ? (req as Request).originalUrl : 'unknown',
+          incomingUrl: req ? req.url : 'unknown',
+          basePath,
+          target,
+          attemptedUrl: req ? `${target}${basePath}${req.url}` : target,
+          error: (err as Error).message,
+        });
+
+        if (res) {
+          (res as Response).status(502).json({
+            success: false,
+            error: { message: 'Service temporarily unavailable', statusCode: 502 },
+          });
+        }
       },
     },
   });
