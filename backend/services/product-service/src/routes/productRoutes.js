@@ -2,15 +2,21 @@ const express = require("express");
 const router = express.Router();
 
 const productController = require("../controllers/productController");
+const authMiddleware = require("../middlewares/authMiddleware");
+const checkRole = require("../middlewares/roleMiddleware");
 
-router.post("/", productController.createProduct);
-router.get("/", productController.getAllProducts);
-router.get("/search", productController.searchProducts);
-router.get("/category/:category", productController.getByCategory);
-router.get("/merchant/:merchantId", productController.getByMerchant);
-router.get("/:id", productController.getProductById);
-router.put("/:id", productController.updateProduct);
-router.delete("/:id", productController.deleteProduct);
+router.use((req, res, next) => {
+  console.log("👉 HIT PRODUCT ROUTE:", req.method, req.originalUrl);
+  next();
+});
+router.post("/", authMiddleware, checkRole(["merchant", "admin"]), productController.createProduct);
+router.get("/", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getAllProducts);
+router.get("/search", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.searchProducts);
+router.get("/category/:category", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getByCategory);
+router.get("/merchant/:merchantId",  authMiddleware, checkRole(["admin", "merchant"]), productController.getByMerchant);
+router.get("/:id",  authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getProductById);
+router.put("/:id", authMiddleware, checkRole(["merchant", "admin"]), productController.updateProduct);
+router.delete("/:id", authMiddleware, checkRole(["admin", "merchant"]), productController.deleteProduct);
 
 
 module.exports = router;

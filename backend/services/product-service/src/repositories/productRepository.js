@@ -29,15 +29,32 @@ const getProductById = async (id) => {
 };
 
 const updateProduct = async (id, data) => {
-  const { name, description, price, category, stock } = data;
+  const fields = [];
+  const values = [];
+  let index = 1;
 
-  const result = await pool.query(
-    `UPDATE products 
-     SET name=$1, description=$2, price=$3, category=$4, stock=$5
-     WHERE id=$6 RETURNING *`,
-    [name, description, price, category, stock, id]
-  );
+  for (let key in data) {
+    if (data[key] !== undefined) {
+      fields.push(`${key} = $${index}`);
+      values.push(data[key]);
+      index++;
+    }
+  }
 
+  if (fields.length === 0) {
+    throw new Error("No fields to update");
+  }
+
+  values.push(id);
+
+  const query = `
+    UPDATE products 
+    SET ${fields.join(", ")}
+    WHERE id = $${index}
+    RETURNING *
+  `;
+
+  const result = await pool.query(query, values);
   return result.rows[0];
 };
 

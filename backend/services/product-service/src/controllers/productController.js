@@ -2,7 +2,13 @@ const productService = require("../services/productService");
 
 const createProduct = async (req, res) => {
   try {
-    const product = await productService.createProduct(req.body);
+    const data = {
+      ...req.body,
+      merchant_id: req.user.id
+    };
+
+    const product = await productService.createProduct(data);
+
     res.status(201).json(product);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -34,13 +40,29 @@ const getProductById = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const product = await productService.updateProduct(req.params.id, req.body);
+    const existingProduct = await productService.getProductById(req.params.id);
 
-    if (!product) {
+    if (!existingProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    res.json(product);
+    // If merchant, only update own product
+    if (
+      req.user.role === "merchant" &&
+      existingProduct.merchant_id !== req.user.id
+    ) {
+      return res.status(403).json({
+        message: "You can only update your own products"
+      });
+    }
+
+    const updatedProduct = await productService.updateProduct(
+      req.params.id,
+      req.body
+    );
+
+    res.json(updatedProduct);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -48,13 +70,26 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   try {
-    const deleted = await productService.deleteProduct(req.params.id);
+    const existingProduct = await productService.getProductById(req.params.id);
 
-    if (!deleted) {
+    if (!existingProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // merchant can delete only own product
+    if (
+      req.user.role === "merchant" &&
+      existingProduct.merchant_id !== req.user.id
+    ) {
+      return res.status(403).json({
+        message: "You can only delete your own products"
+      });
+    }
+
+    await productService.deleteProduct(req.params.id);
+
     res.json({ message: "Product deleted" });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
