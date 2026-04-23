@@ -50,7 +50,7 @@ export class GoogleAuthService {
         const created = await userRepository.create({
           email,
           name: name ?? undefined,
-          role,
+          role: 'unassigned',
           googleId,
           // no password — OAuth user
         });

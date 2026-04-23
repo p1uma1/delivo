@@ -14,6 +14,11 @@ router.patch('/me', authenticateToken, (req, res, next) =>
   userController.updateProfile(req, res, next)
 );
 
+// POST /users/me/complete-setup — complete user setup and select role
+router.post('/me/complete-setup', authenticateToken, (req, res, next) =>
+  userController.completeSetup(req, res, next)
+);
+
 // GET /users/riders — admin only
 router.get('/riders', authenticateToken, authorizeRole('admin'), (req, res, next) =>
   userController.listRiders(req, res, next)

@@ -47,7 +47,7 @@ export class AuthService {
     //   role: user.role,
     // });
 
-    const tokens = await this._issueTokens(user.id, user.email, user.role);
+    const tokens = await this.issueTokens(user.id, user.email, user.role);
     return { ...tokens, user };
   }
 
@@ -71,7 +71,7 @@ export class AuthService {
     await userRepository.deleteAllRefreshTokensForUser(userRecord.id);
 
     const { password: _p, ...user } = userRecord;
-    const tokens = await this._issueTokens(user.id, user.email, user.role);
+    const tokens = await this.issueTokens(user.id, user.email, user.role);
     return { ...tokens, user };
   }
 
@@ -95,7 +95,7 @@ export class AuthService {
     }
 
     const { password: _p, ...user } = userRecord;
-    const tokens = await this._issueTokens(user.id, user.email, user.role);
+    const tokens = await this.issueTokens(user.id, user.email, user.role);
     return { ...tokens, user };
   }
 
@@ -103,7 +103,7 @@ export class AuthService {
     await userRepository.deleteRefreshToken(refreshToken);
   }
 
-  private async _issueTokens(
+  public async issueTokens(
     userId: string,
     email: string,
     role: string

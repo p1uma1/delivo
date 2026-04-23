@@ -16,7 +16,7 @@ export interface GoogleAuthInput {
 }
 
 
-export type UserRole = 'admin' | 'rider' | 'customer';
+export type UserRole = 'admin' | 'rider' | 'customer' | 'merchant' | 'unassigned';
 
 export type UserWithoutPassword = Omit<User, 'password'>;
 
