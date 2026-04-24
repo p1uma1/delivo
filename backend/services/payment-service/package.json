@@ -1,7 +1,7 @@
 {
-  "name": "@delivo/order-service",
+  "name": "@delivo/payment-service",
   "version": "1.0.0",
-  "description": "Delivo Order Service — order management",
+  "description": "Delivo Payment Service \u2014 payment processing",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@delivo/shared": "*",
-    "@prisma/client": "^5.15.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "helmet": "^7.1.0"
+    "helmet": "^7.1.0",
+    "stripe": "^15.8.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

@@ -31,6 +31,7 @@ COPY backend/services/notification-service/package*.json ./backend/services/noti
 RUN npm install --workspace=backend/packages/shared --workspace=backend/services/notification-service
 COPY backend/packages/shared ./backend/packages/shared
 COPY backend/services/notification-service ./backend/services/notification-service
+RUN npm run build --workspace=backend/packages/shared
 WORKDIR /app/backend/services/notification-service
 ENV NODE_ENV=development
 CMD ["npm", "run", "dev"]

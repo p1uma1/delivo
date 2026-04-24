@@ -32,6 +32,7 @@ COPY backend/services/delivery-service/package*.json ./backend/services/delivery
 RUN npm install --workspace=backend/packages/shared --workspace=backend/services/delivery-service
 COPY backend/packages/shared ./backend/packages/shared
 COPY backend/services/delivery-service ./backend/services/delivery-service
+RUN npm run build --workspace=backend/packages/shared
 WORKDIR /app/backend/services/delivery-service
 ENV NODE_ENV=development
 EXPOSE 3003

@@ -44,6 +44,7 @@ services:
       - user-service
       - order-service
       - delivery-service
+      - payment-service
     networks:
       - delivo-network
 
@@ -99,6 +100,21 @@ services:
     container_name: delivo-notification-service
     restart: unless-stopped
     env_file: .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - delivo-network
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: backend/services/payment-service/Dockerfile
+    container_name: delivo-payment-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3004
     depends_on:
       rabbitmq:
         condition: service_healthy

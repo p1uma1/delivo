@@ -32,6 +32,7 @@ COPY backend/services/order-service/package*.json ./backend/services/order-servi
 RUN npm install --workspace=backend/packages/shared --workspace=backend/services/order-service
 COPY backend/packages/shared ./backend/packages/shared
 COPY backend/services/order-service ./backend/services/order-service
+RUN npm run build --workspace=backend/packages/shared
 WORKDIR /app/backend/services/order-service
 ENV NODE_ENV=development
 EXPOSE 3002

@@ -32,6 +32,7 @@ COPY backend/api-gateway/package*.json ./backend/api-gateway/
 RUN npm install --workspace=backend/packages/shared --workspace=backend/api-gateway
 COPY backend/packages/shared ./backend/packages/shared
 COPY backend/api-gateway ./backend/api-gateway
+RUN npm run build --workspace=backend/packages/shared
 WORKDIR /app/backend/api-gateway
 ENV NODE_ENV=development
 EXPOSE 3000

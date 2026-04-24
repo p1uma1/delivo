@@ -28,7 +28,7 @@ export async function connectRabbitMQ(retries = 10): Promise<RabbitMQClient> {
       // Declare the main topic exchange
       await channel.assertExchange(EXCHANGE, 'topic', { durable: true });
 
-      connection.on('error', (err) => {
+      connection.on('error', (err: Error) => {
         logger.error('RabbitMQ connection error', { error: err.message });
         client = null;
         setTimeout(() => connectRabbitMQ(), RECONNECT_DELAY);

@@ -32,6 +32,7 @@ COPY backend/services/user-service/package*.json ./backend/services/user-service
 RUN npm install --workspace=backend/packages/shared --workspace=backend/services/user-service
 COPY backend/packages/shared ./backend/packages/shared
 COPY backend/services/user-service ./backend/services/user-service
+RUN npm run build --workspace=backend/packages/shared
 WORKDIR /app/backend/services/user-service
 ENV NODE_ENV=development
 EXPOSE 3001

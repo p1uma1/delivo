@@ -27,6 +27,7 @@ console.log('USER_SERVICE_URL:', process.env.USER_SERVICE_URL);
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user-service:3001';
 const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:3002';
 const DELIVERY_SERVICE_URL = process.env.DELIVERY_SERVICE_URL || 'http://delivery-service:3003';
+const PAYMENT_SERVICE_URL = process.env.PAYMENT_SERVICE_URL || 'http://payment-service:3004';
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
 app.use(helmet());
@@ -122,6 +123,12 @@ app.use(
   proxyOptions(DELIVERY_SERVICE_URL, '/deliveries')  //change according to path provided by backend
 );
 
+app.use(
+  '/api/payments',
+  authenticateToken,
+  proxyOptions(PAYMENT_SERVICE_URL, '/payments')
+);
+
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((_req: Request, _res: Response, next: NextFunction) => {
   next(new NotFoundError('Route not found'));
@@ -136,6 +143,7 @@ app.listen(PORT, () => {
   logger.info(`Proxying: /api/auth, /api/users → ${USER_SERVICE_URL}`);
   logger.info(`Proxying: /api/orders → ${ORDER_SERVICE_URL}`);
   logger.info(`Proxying: /api/deliveries → ${DELIVERY_SERVICE_URL}`);
+  logger.info(`Proxying: /api/payments → ${PAYMENT_SERVICE_URL}`);
 });
 
 export default app;
