@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { userService } from '../services/user.service';
+import { authService } from '../services/auth.service';
+import { REFRESH_COOKIE, COOKIE_OPTIONS } from './auth.controller';
 import { ValidationError } from '@delivo/shared';
 
 export class UserController {
@@ -24,6 +26,25 @@ export class UserController {
 
       const user = await userService.updateProfile(userId, { name });
       res.json({ success: true, data: { user } });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async completeSetup(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user!.userId;
+      const { role } = req.body;
+
+      if (!role) {
+        throw new ValidationError('Role must be provided');
+      }
+
+      const user = await userService.completeSetup(userId, role);
+      const { accessToken, refreshToken } = await authService.issueTokens(user.id, user.email, user.role);
+      
+      res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
+      res.json({ success: true, data: { accessToken, user } });
     } catch (err) {
       next(err);
     }
