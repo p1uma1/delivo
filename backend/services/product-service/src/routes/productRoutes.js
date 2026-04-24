@@ -5,10 +5,6 @@ const productController = require("../controllers/productController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const checkRole = require("../middlewares/roleMiddleware");
 
-router.use((req, res, next) => {
-  console.log("👉 HIT PRODUCT ROUTE:", req.method, req.originalUrl);
-  next();
-});
 router.post("/", authMiddleware, checkRole(["merchant", "admin"]), productController.createProduct);
 router.get("/", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getAllProducts);
 router.get("/search", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.searchProducts);

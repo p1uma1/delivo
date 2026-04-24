@@ -17,6 +17,11 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5002;
 
-app.listen(PORT, () => {
-  console.log(`Product service running on port ${PORT}`);
-});
+// Start server only if this file is run directly, not when imported for testing
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Product service running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
