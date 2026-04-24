@@ -3,8 +3,8 @@ import { authService } from '../services/auth.service';
 import { googleAuthService } from '../services/google-auth.service';
 import { ValidationError } from '@delivo/shared';
 
-const REFRESH_COOKIE = 'refreshToken';
-const COOKIE_OPTIONS = {
+export const REFRESH_COOKIE = 'refreshToken';
+export const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
