@@ -1,26 +1,39 @@
-FROM node:20-alpine
-
-WORKDIR /usr/src/app
-
-# Install pnpm or fallback to npm if pnpm is not used (Delivo uses npm workspaces as seen in root package.json, wait no, it uses npm workspaces but root has package-lock.json)
-# Copy root package files
-COPY package.json package-lock.json ./
-
-# Copy the shared package and the specific service
+# ─── Builder Stage ────────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+COPY backend/packages/shared/package*.json ./backend/packages/shared/
+COPY backend/services/payment-service/package*.json ./backend/services/payment-service/
+RUN npm install --workspace=backend/packages/shared --workspace=backend/services/payment-service
 COPY backend/packages/shared ./backend/packages/shared
 COPY backend/services/payment-service ./backend/services/payment-service
+RUN npm run build --workspace=backend/packages/shared
+RUN npm run build --workspace=backend/services/payment-service
 
-# Install dependencies for workspaces
-RUN npm install
-
-# Build shared package first
-WORKDIR /usr/src/app/backend/packages/shared
-RUN npm run build || tsc || echo "No build script in shared"
-
-# Build payment service
-WORKDIR /usr/src/app/backend/services/payment-service
-RUN npm run build || tsc
-
+# ─── Production Stage ─────────────────────────────────────────────────────────
+FROM node:20-alpine AS production
+WORKDIR /app
+COPY --from=builder /app/backend/packages/shared/dist ./backend/packages/shared/dist
+COPY --from=builder /app/backend/packages/shared/package.json ./backend/packages/shared/
+COPY --from=builder /app/backend/services/payment-service/dist ./backend/services/payment-service/dist
+COPY --from=builder /app/backend/services/payment-service/package.json ./backend/services/payment-service/
+COPY --from=builder /app/node_modules ./node_modules
+WORKDIR /app/backend/services/payment-service
+ENV NODE_ENV=production
 EXPOSE 3004
+CMD ["node", "dist/index.js"]
 
-CMD ["npm", "start"]
+# ─── Development Stage ────────────────────────────────────────────────────────
+FROM node:20-alpine AS dev
+WORKDIR /app
+COPY package*.json ./
+COPY backend/packages/shared/package*.json ./backend/packages/shared/
+COPY backend/services/payment-service/package*.json ./backend/services/payment-service/
+RUN npm install --workspace=backend/packages/shared --workspace=backend/services/payment-service
+COPY backend/packages/shared ./backend/packages/shared
+COPY backend/services/payment-service ./backend/services/payment-service
+RUN npm run build --workspace=backend/packages/shared
+WORKDIR /app/backend/services/payment-service
+ENV NODE_ENV=development
+EXPOSE 3004
+CMD ["npm", "run", "dev"]

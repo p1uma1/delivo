@@ -8,7 +8,7 @@ export async function handleOrderCreated(payload: any) {
 
   // Notify customer
   await sendEmail({
-    to: payload.email || 'customer@example.com', // In real world, fetch from User service if not in payload
+    to: payload.customerEmail || 'kkravishan3@gmail.com', 
     subject: 'Order Received - Delivo',
     body: `Hi! Your order ${payload.orderId} has been received and is being processed. Pickup from: ${payload.pickupAddress}`,
   });

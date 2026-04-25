@@ -47,11 +47,13 @@ export class PaymentService {
     });
 
     if (payment.status === 'COMPLETED') {
+      const customerEmail = await paymentRepository.getCustomerEmailByOrderId(orderId);
       // Publish event to RabbitMQ
       await publishEvent('payment.completed', {
         paymentId: payment.id,
         orderId: payment.orderId,
         amount: payment.amount,
+        customerEmail,
         timestamp: new Date().toISOString()
       });
     }
@@ -76,11 +78,13 @@ export class PaymentService {
         const paymentIntent = await stripe.paymentIntents.retrieve(payment.stripePaymentIntentId);
         if (paymentIntent.status === 'succeeded') {
           const updated = await paymentRepository.updateStatus(paymentId, 'COMPLETED');
+          const customerEmail = await paymentRepository.getCustomerEmailByOrderId(updated.orderId);
           
           await publishEvent('payment.completed', {
             paymentId: updated.id,
             orderId: updated.orderId,
             amount: updated.amount,
+            customerEmail,
             timestamp: new Date().toISOString()
           });
           
@@ -92,10 +96,13 @@ export class PaymentService {
     } else if (payment.stripePaymentIntentId?.startsWith('pi_simulated_')) {
       // Simulate success for dummy
       const updated = await paymentRepository.updateStatus(paymentId, 'COMPLETED');
+      const customerEmail = await paymentRepository.getCustomerEmailByOrderId(updated.orderId);
+
       await publishEvent('payment.completed', {
         paymentId: updated.id,
         orderId: updated.orderId,
         amount: updated.amount,
+        customerEmail,
         timestamp: new Date().toISOString()
       });
       return updated;

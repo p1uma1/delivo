@@ -6,6 +6,7 @@ networks:
 
 volumes:
   rabbitmq-data:
+  postgres-data:
 
 services:
   # ─── Infrastructure ──────────────────────────────────────────────────────────
@@ -27,6 +28,27 @@ services:
       timeout: 10s
       retries: 5
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: delivo-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: delivo
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - delivo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ─── Application Services ────────────────────────────────────────────────────
 
   api-gateway:
@@ -45,6 +67,8 @@ services:
       - order-service
       - delivery-service
       - payment-service
+      - product-service
+      - admin-service
     networks:
       - delivo-network
 
@@ -57,8 +81,11 @@ services:
     env_file: .env
     environment:
       PORT: 3001
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/delivo
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     networks:
       - delivo-network
@@ -72,8 +99,11 @@ services:
     env_file: .env
     environment:
       PORT: 3002
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/delivo
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     networks:
       - delivo-network
@@ -87,8 +117,11 @@ services:
     env_file: .env
     environment:
       PORT: 3003
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/delivo
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     networks:
       - delivo-network
@@ -115,8 +148,43 @@ services:
     env_file: .env
     environment:
       PORT: 3004
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/delivo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - delivo-network
+
+  product-service:
+    build:
+      context: .
+      dockerfile: backend/services/product-service/Dockerfile
+    container_name: delivo-product-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3005
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/delivo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - delivo-network
+
+  admin-service:
+    build:
+      context: .
+      dockerfile: backend/services/admin-service/Dockerfile
+    container_name: delivo-admin-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3006
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/delivo
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     networks:
       - delivo-network

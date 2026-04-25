@@ -1,4 +1,4 @@
-import { sendEmail, sendSMS } from '../channels/email';
+import { sendEmail } from '../channels/email';
 import { createLogger } from '@delivo/shared';
 
 const logger = createLogger('notification-service:handlers');
@@ -22,7 +22,7 @@ export async function handleDeliveryStatusUpdated(payload: any) {
 
   if (message) {
     await sendEmail({
-      to: 'customer@example.com',
+      to: payload.customerEmail || 'kkravishan3@gmail.com',
       subject: `Order Update: ${payload.status} - Delivo`,
       body: message,
     });

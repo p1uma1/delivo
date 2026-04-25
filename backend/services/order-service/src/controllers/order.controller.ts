@@ -7,6 +7,7 @@ export class OrderController {
     try {
       const { pickupAddress, deliveryAddress, items } = req.body;
       const customerId = req.user!.userId;
+      const customerEmail = req.user!.email;
 
       if (!pickupAddress || !deliveryAddress || !items) {
         throw new ValidationError('pickupAddress, deliveryAddress, and items are required');
@@ -14,6 +15,7 @@ export class OrderController {
 
       const order = await orderService.createOrder({
         customerId,
+        customerEmail,
         pickupAddress,
         deliveryAddress,
         items,

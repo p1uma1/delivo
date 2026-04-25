@@ -28,6 +28,8 @@ const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user-service:30
 const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:3002';
 const DELIVERY_SERVICE_URL = process.env.DELIVERY_SERVICE_URL || 'http://delivery-service:3003';
 const PAYMENT_SERVICE_URL = process.env.PAYMENT_SERVICE_URL || 'http://payment-service:3004';
+const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://product-service:3005';
+const ADMIN_SERVICE_URL = process.env.ADMIN_SERVICE_URL || 'http://admin-service:3006';
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
 app.use(helmet());
@@ -129,6 +131,17 @@ app.use(
   proxyOptions(PAYMENT_SERVICE_URL, '/payments')
 );
 
+app.use(
+  '/api/products',
+  proxyOptions(PRODUCT_SERVICE_URL, '')
+);
+
+app.use(
+  '/api/admin',
+  authenticateToken,
+  proxyOptions(ADMIN_SERVICE_URL, '')
+);
+
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((_req: Request, _res: Response, next: NextFunction) => {
   next(new NotFoundError('Route not found'));
@@ -144,6 +157,8 @@ app.listen(PORT, () => {
   logger.info(`Proxying: /api/orders → ${ORDER_SERVICE_URL}`);
   logger.info(`Proxying: /api/deliveries → ${DELIVERY_SERVICE_URL}`);
   logger.info(`Proxying: /api/payments → ${PAYMENT_SERVICE_URL}`);
+  logger.info(`Proxying: /api/products → ${PRODUCT_SERVICE_URL}`);
+  logger.info(`Proxying: /api/admin → ${ADMIN_SERVICE_URL}`);
 });
 
 export default app;

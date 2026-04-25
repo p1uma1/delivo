@@ -34,7 +34,7 @@ app.use((_req, _res, next) => {
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use(globalErrorHandler);
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID) {
   app.listen(PORT, () => {
     console.log(`User Service running on port ${PORT}`);
   });

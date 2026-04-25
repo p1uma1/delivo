@@ -50,6 +50,26 @@ services:
       - ./backend/services/notification-service/src:/app/backend/services/notification-service/src
       - ./backend/packages/shared/src:/app/backend/packages/shared/src
 
+  product-service:
+    build:
+      target: dev
+    command: npm run dev
+    ports:
+      - "3005:3005"
+    volumes:
+      - ./backend/services/product-service/src:/app/backend/services/product-service/src
+      - ./backend/packages/shared/src:/app/backend/packages/shared/src
+
+  admin-service:
+    build:
+      target: dev
+    command: npm run dev
+    ports:
+      - "3006:3006"
+    volumes:
+      - ./backend/services/admin-service/src:/app/backend/services/admin-service/src
+      - ./backend/packages/shared/src:/app/backend/packages/shared/src
+
   web-app:
     build:
       target: dev

@@ -20,6 +20,7 @@ COPY --from=builder /app/backend/services/notification-service/package.json ./ba
 COPY --from=builder /app/node_modules ./node_modules
 WORKDIR /app/backend/services/notification-service
 ENV NODE_ENV=production
+EXPOSE 3004
 CMD ["node", "dist/index.js"]
 
 # ─── Development Stage ────────────────────────────────────────────────────────
@@ -34,4 +35,5 @@ COPY backend/services/notification-service ./backend/services/notification-servi
 RUN npm run build --workspace=backend/packages/shared
 WORKDIR /app/backend/services/notification-service
 ENV NODE_ENV=development
+EXPOSE 3004
 CMD ["npm", "run", "dev"]

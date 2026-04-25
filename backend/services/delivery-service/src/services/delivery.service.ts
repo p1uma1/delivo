@@ -11,7 +11,7 @@ export class DeliveryService {
       pickupAddress,
       deliveryAddress,
       trackingNumber,
-      status: DeliveryStatus.PENDING,
+      status: 'PENDING',
     });
 
     return delivery;
@@ -21,19 +21,22 @@ export class DeliveryService {
     const delivery = await deliveryRepository.findById(deliveryId);
     if (!delivery) throw new NotFoundError('Delivery not found');
 
-    if (delivery.status !== DeliveryStatus.PENDING) {
+    if (delivery.status !== 'PENDING') {
       throw new ValidationError(`Delivery is already in ${delivery.status} status`);
     }
 
     const updatedDelivery = await deliveryRepository.update(deliveryId, {
       riderId,
-      status: DeliveryStatus.ASSIGNED,
+      status: 'ASSIGNED',
     });
+
+    const customerEmail = await deliveryRepository.getCustomerEmailByDeliveryId(deliveryId);
 
     await publishEvent('delivery.assigned', {
       deliveryId: updatedDelivery.id,
       orderId: updatedDelivery.orderId,
       riderId: updatedDelivery.riderId,
+      customerEmail,
     });
 
     return updatedDelivery;
@@ -48,14 +51,16 @@ export class DeliveryService {
     }
 
     const updatedDelivery = await deliveryRepository.updateStatus(deliveryId, status);
+    const customerEmail = await deliveryRepository.getCustomerEmailByDeliveryId(deliveryId);
 
     await publishEvent('delivery.status.updated', {
       deliveryId: updatedDelivery.id,
       orderId: updatedDelivery.orderId,
       status: updatedDelivery.status,
+      customerEmail,
     });
 
-    if (status === DeliveryStatus.DELIVERED) {
+    if (status === 'DELIVERED') {
       await publishEvent('delivery.completed', {
         deliveryId: updatedDelivery.id,
         orderId: updatedDelivery.orderId,

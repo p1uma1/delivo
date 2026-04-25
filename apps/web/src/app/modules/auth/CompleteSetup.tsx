@@ -65,16 +65,19 @@ export const CompleteSetup: React.FC<CompleteSetupProps> = ({ onSuccess }) => {
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
                   padding: '1.5rem',
-                  background: role === 'customer' ? 'var(--text-primary)' : 'var(--bg-input)',
-                  color: role === 'customer' ? 'var(--bg-primary)' : 'var(--text-primary)',
-                  border: `1px solid ${role === 'customer' ? 'var(--text-primary)' : 'var(--border-color)'}`,
-                  borderRadius: '0.5rem',
+                  background: role === 'customer' ? '#ffffff' : '#000000',
+                  color: role === 'customer' ? '#000000' : '#ffffff',
+                  border: `2px solid ${role === 'customer' ? '#ffffff' : '#333333'}`,
+                  borderRadius: '0.75rem',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  transform: role === 'customer' ? 'scale(1.05)' : 'scale(1)',
+                  boxShadow: role === 'customer' ? '0 0 20px rgba(255,255,255,0.2)' : 'none',
                 }}
               >
                 <UserIcon size={24} />
                 <span style={{ fontWeight: 600 }}>Customer</span>
+                <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>Order & track</span>
               </button>
 
               <button 
@@ -83,16 +86,19 @@ export const CompleteSetup: React.FC<CompleteSetupProps> = ({ onSuccess }) => {
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
                   padding: '1.5rem',
-                  background: role === 'merchant' ? 'var(--text-primary)' : 'var(--bg-input)',
-                  color: role === 'merchant' ? 'var(--bg-primary)' : 'var(--text-primary)',
-                  border: `1px solid ${role === 'merchant' ? 'var(--text-primary)' : 'var(--border-color)'}`,
-                  borderRadius: '0.5rem',
+                  background: role === 'merchant' ? '#ffffff' : '#000000',
+                  color: role === 'merchant' ? '#000000' : '#ffffff',
+                  border: `2px solid ${role === 'merchant' ? '#ffffff' : '#333333'}`,
+                  borderRadius: '0.75rem',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  transform: role === 'merchant' ? 'scale(1.05)' : 'scale(1)',
+                  boxShadow: role === 'merchant' ? '0 0 20px rgba(255,255,255,0.2)' : 'none',
                 }}
               >
                 <Building2 size={24} />
                 <span style={{ fontWeight: 600 }}>Merchant</span>
+                <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>Sell products</span>
               </button>
 
               <button 
@@ -101,16 +107,19 @@ export const CompleteSetup: React.FC<CompleteSetupProps> = ({ onSuccess }) => {
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
                   padding: '1.5rem',
-                  background: role === 'rider' ? 'var(--text-primary)' : 'var(--bg-input)',
-                  color: role === 'rider' ? 'var(--bg-primary)' : 'var(--text-primary)',
-                  border: `1px solid ${role === 'rider' ? 'var(--text-primary)' : 'var(--border-color)'}`,
-                  borderRadius: '0.5rem',
+                  background: role === 'rider' ? '#ffffff' : '#000000',
+                  color: role === 'rider' ? '#000000' : '#ffffff',
+                  border: `2px solid ${role === 'rider' ? '#ffffff' : '#333333'}`,
+                  borderRadius: '0.75rem',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  transform: role === 'rider' ? 'scale(1.05)' : 'scale(1)',
+                  boxShadow: role === 'rider' ? '0 0 20px rgba(255,255,255,0.2)' : 'none',
                 }}
               >
                 <Truck size={24} />
                 <span style={{ fontWeight: 600 }}>Rider</span>
+                <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>Deliver orders</span>
               </button>
 
             </div>

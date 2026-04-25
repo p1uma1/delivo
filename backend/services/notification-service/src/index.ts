@@ -2,6 +2,7 @@ import { connectRabbitMQ, subscribeEvent, createLogger } from '@delivo/shared';
 import { handleOrderCreated } from './handlers/orderCreated';
 import { handleDeliveryAssigned } from './handlers/deliveryAssigned';
 import { handleDeliveryStatusUpdated } from './handlers/deliveryUpdated';
+import { handlePaymentCompleted } from './handlers/paymentCompleted';
 
 const logger = createLogger('notification-service');
 
@@ -32,6 +33,13 @@ async function start() {
       'notification-service.delivery-status-updated',
       'delivery.status.updated',
       handleDeliveryStatusUpdated
+    );
+
+    // 4. Payment Completed
+    await subscribeEvent(
+      'notification-service.payment-completed',
+      'payment.completed',
+      handlePaymentCompleted
     );
 
     logger.info('Notification Service initialized and listening for events');

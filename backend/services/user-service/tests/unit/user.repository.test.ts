@@ -71,7 +71,7 @@ describe('UserRepository', () => {
       expect(result.email).toBe(userData.email);
       expect(db.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO users'),
-        [userData.email, userData.password, userData.name, userData.role]
+        [userData.email, userData.password, userData.name, userData.role, null]
       );
     });
   });
