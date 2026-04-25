@@ -4,7 +4,7 @@ const createProduct = async (req, res) => {
   try {
     const data = {
       ...req.body,
-      merchant_id: req.user.id
+      merchant_id: req.user.userId || req.user.id
     };
 
     const product = await productService.createProduct(data);
@@ -49,7 +49,7 @@ const updateProduct = async (req, res) => {
     // If merchant, only update own product
     if (
       req.user.role === "merchant" &&
-      existingProduct.merchant_id !== req.user.id
+      existingProduct.merchant_id !== (req.user.userId || req.user.id)
     ) {
       return res.status(403).json({
         message: "You can only update your own products"
@@ -79,7 +79,7 @@ const deleteProduct = async (req, res) => {
     // merchant can delete only own product
     if (
       req.user.role === "merchant" &&
-      existingProduct.merchant_id !== req.user.id
+      existingProduct.merchant_id !== (req.user.userId || req.user.id)
     ) {
       return res.status(403).json({
         message: "You can only delete your own products"

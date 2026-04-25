@@ -5,7 +5,7 @@ import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { createLogger, globalErrorHandler, authenticateToken, NotFoundError } from '@delivo/shared';
 import { globalRateLimiter, authRateLimiter } from './middleware/rateLimiter';
 import dotenv from 'dotenv';
-import path from 'path';
+import path from 'node:path';
 
 const envPath = path.resolve(__dirname, '../../../.env');
 const result = dotenv.config({ path: envPath });
@@ -78,12 +78,12 @@ const proxyOptions = (target: string, basePath: string) =>
       error: (err, req, res) => {
         logger.error('Proxy error', {
           method: req.method,
-          originalUrl: req ? (req as Request).originalUrl : 'unknown',
+          originalUrl: req ? req.originalUrl : 'unknown',
           incomingUrl: req ? req.url : 'unknown',
           basePath,
           target,
           attemptedUrl: req ? `${target}${basePath}${req.url}` : target,
-          error: (err as Error).message,
+          error: err instanceof Error ? err.message : 'unknown error',
         });
 
         if (res) {
