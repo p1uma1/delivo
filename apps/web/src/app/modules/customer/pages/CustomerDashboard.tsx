@@ -1,4 +1,5 @@
 import { useCustomerDashboard } from '../hooks/useCustomerDashboard';
+import { useNavigate } from 'react-router-dom';
 
 const steps = ['Order Placed', 'Confirmed', 'Preparing', 'On the Way', 'Delivered'];
 
@@ -10,6 +11,7 @@ const statusColor: Record<string, string> = {
 
 export const CustomerDashboard = () => {
   const { data, loading, error } = useCustomerDashboard();
+  const navigate = useNavigate();
 
   return (
     <section style={{ display: 'grid', gap: 20 }}>
@@ -34,7 +36,11 @@ export const CustomerDashboard = () => {
           <button className="btn" style={{ background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
             🛒 Cart {data.cartCount}
           </button>
-          <button className="btn" style={{ background: 'linear-gradient(135deg,#a5b4fc,#ec4899)', color: '#fff', fontWeight: 700 }}>
+          <button
+            className="btn"
+            style={{ background: 'linear-gradient(135deg,#a5b4fc,#ec4899)', color: '#fff', fontWeight: 700 }}
+            onClick={() => navigate('/customer/products')}
+          >
             Order Now
           </button>
         </div>
@@ -78,7 +84,7 @@ export const CustomerDashboard = () => {
             minWidth: 220,
           }}
         />
-        <button className="btn btn-primary">Search</button>
+        <button className="btn btn-primary" onClick={() => navigate('/customer/products')}>Search</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, opacity: loading ? 0.75 : 1 }}>
@@ -212,10 +218,18 @@ export const CustomerDashboard = () => {
       </div>
 
       <div style={{ display: 'grid', gap: 16 }}>
-        <h3 style={{ margin: 0 }}>Recommended for You</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0 }}>Recommended for You</h3>
+          <button className="btn" style={{ fontSize: 12, padding: '4px 10px' }} onClick={() => navigate('/products')}>View All</button>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
           {data.recommended.map((item) => (
-            <div key={item.name} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div
+              key={item.name}
+              className="card"
+              style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }}
+              onClick={() => navigate('/products')}
+            >
               <div style={{ height: 100, background: '#1f2937', display: 'grid', placeItems: 'center', fontSize: 48 }}>
                 {item.icon}
               </div>

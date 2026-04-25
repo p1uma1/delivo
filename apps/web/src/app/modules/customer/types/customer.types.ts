@@ -35,3 +35,25 @@ export interface CustomerDashboardData {
   recommended: RecommendedItem[];
   cartCount: number;
 }
+
+export interface Merchant {
+  id: string;
+  name: string;
+  description: string;
+  rating: string;
+  time: string;
+  icon: string;
+  address: string;
+  category: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  icon: string;
+  merchantId: string;
+  merchantName?: string;
+}

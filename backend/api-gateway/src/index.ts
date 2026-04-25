@@ -27,7 +27,7 @@ console.log('USER_SERVICE_URL:', process.env.USER_SERVICE_URL);
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user-service:3001';
 const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:3002';
 const DELIVERY_SERVICE_URL = process.env.DELIVERY_SERVICE_URL || 'http://delivery-service:3003';
-const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://localhost:5002';
+const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://product-service:3004';
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
 app.use(helmet());
@@ -112,12 +112,6 @@ app.use(
 );
 
 app.use(
-  '/api/products',
-  authenticateToken,
-  proxyOptions(PRODUCT_SERVICE_URL, '/products')
-);
-
-app.use(
   '/api/orders',
   authenticateToken,
   proxyOptions(ORDER_SERVICE_URL, '/orders')     //change according to path provided by backend
@@ -127,6 +121,12 @@ app.use(
   '/api/deliveries',
   authenticateToken,
   proxyOptions(DELIVERY_SERVICE_URL, '/deliveries')  //change according to path provided by backend
+);
+
+app.use(
+  '/api/products',
+  authenticateToken,
+  proxyOptions(PRODUCT_SERVICE_URL, '/products')  //change according to path provided by backend
 );
 
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
