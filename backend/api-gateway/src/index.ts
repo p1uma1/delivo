@@ -27,6 +27,7 @@ console.log('USER_SERVICE_URL:', process.env.USER_SERVICE_URL);
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user-service:3001';
 const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:3002';
 const DELIVERY_SERVICE_URL = process.env.DELIVERY_SERVICE_URL || 'http://delivery-service:3003';
+const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://localhost:5002';
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
 app.use(helmet());
@@ -111,6 +112,12 @@ app.use(
 );
 
 app.use(
+  '/api/products',
+  authenticateToken,
+  proxyOptions(PRODUCT_SERVICE_URL, '/products')
+);
+
+app.use(
   '/api/orders',
   authenticateToken,
   proxyOptions(ORDER_SERVICE_URL, '/orders')     //change according to path provided by backend
@@ -136,6 +143,7 @@ app.listen(PORT, () => {
   logger.info(`Proxying: /api/auth, /api/users → ${USER_SERVICE_URL}`);
   logger.info(`Proxying: /api/orders → ${ORDER_SERVICE_URL}`);
   logger.info(`Proxying: /api/deliveries → ${DELIVERY_SERVICE_URL}`);
+  logger.info(`Proxying: /api/products → ${PRODUCT_SERVICE_URL}`);
 });
 
 export default app;
