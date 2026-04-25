@@ -37,7 +37,7 @@ export const MerchantList = () => {
               cursor: 'pointer',
               transition: 'transform 0.2s, box-shadow 0.2s',
             }}
-            onClick={() => navigate(`/customer/merchants/${merchant.id}`)}
+            onClick={() => navigate(`/merchants/${merchant.id}`)}
             onMouseOver={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
               e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.2)';

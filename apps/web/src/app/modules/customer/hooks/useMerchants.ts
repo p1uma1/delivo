@@ -23,10 +23,10 @@ export const useMerchants = (merchantId?: string) => {
         setError(null);
 
         if (merchantId) {
-          const response = await api.get(`/merchants/${merchantId}`);
+          const response = await api.get(`/products/merchants/${merchantId}`);
           setMerchant(response.data?.data || fallbackMerchants.find(m => m.id === merchantId) || null);
         } else {
-          const response = await api.get('/merchants');
+          const response = await api.get('/products/merchants');
           const data = response.data?.data || response.data || [];
           setMerchants(Array.isArray(data) && data.length > 0 ? data : fallbackMerchants);
         }

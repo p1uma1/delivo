@@ -8,6 +8,7 @@ const express = require("express");
 const cors = require("cors");
 
 const productRoutes = require("./routes/productRoutes");
+const merchantRoutes = require("./routes/merchantRoutes");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/products", productRoutes);
+app.use("/products/merchants", merchantRoutes);
 
 app.get("/", (req, res) => {
   res.send("Product Service Running");
