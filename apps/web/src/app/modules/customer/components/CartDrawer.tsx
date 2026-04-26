@@ -318,7 +318,7 @@ export const CartDrawer: React.FC = () => {
                         {item.productName}
                       </div>
                       <div style={{ fontSize: 13, color: '#a5b4fc', fontWeight: 700, marginTop: 2 }}>
-                        LKR {(item.unitPrice * item.quantity).toFixed(2)}
+                        Rs {(item.unitPrice * item.quantity).toFixed(2)}
                       </div>
                     </div>
 
@@ -412,7 +412,7 @@ export const CartDrawer: React.FC = () => {
                     Subtotal ({itemCount} item{itemCount > 1 ? 's' : ''})
                   </span>
                   <span style={{ fontSize: 18, fontWeight: 800, color: '#a5b4fc' }}>
-                    LKR {cartTotal.toFixed(2)}
+                    Rs {cartTotal.toFixed(2)}
                   </span>
                 </div>
 
@@ -550,7 +550,7 @@ export const CartDrawer: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    Place Order · LKR {cartTotal.toFixed(2)}
+                    Place Order · Rs {cartTotal.toFixed(2)}
                   </>
                 )}
               </button>

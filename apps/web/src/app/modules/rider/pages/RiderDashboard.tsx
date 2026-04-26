@@ -276,7 +276,7 @@ export const RiderDashboard = () => {
               ))}
             </div>
             <div style={{ marginTop: 12, textAlign: 'center', fontSize: 13, color: 'var(--text-dim)' }}>
-              This week: <span style={{ color: '#6ee7b7', fontWeight: 700 }}>$304.00</span>
+              This week: <span style={{ color: '#6ee7b7', fontWeight: 700 }}>Rs 304.00</span>
             </div>
           </div>
         </div>

@@ -263,7 +263,7 @@ export const CustomerDashboard = () => {
             ) : (
               [
                 { label: 'Total Orders', value: data.stats?.totalOrders ?? '0' },
-                { label: 'Total Spent', value: data.stats?.totalSpent ? `$${data.stats.totalSpent}` : '$0.00' },
+                { label: 'Total Spent', value: data.stats?.totalSpent ? `Rs ${data.stats.totalSpent}` : 'Rs 0.00' },
                 { label: 'Favourite', value: data.stats?.favoriteMerchant ?? 'None' },
               ].map((stat) => (
                 <div key={stat.label} style={{ textAlign: 'center' }}>

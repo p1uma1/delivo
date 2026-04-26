@@ -12,6 +12,11 @@ const parsePrice = (price: string): number => {
   return isNaN(num) ? 0 : num;
 };
 
+const formatPrice = (price: string): string => {
+  const num = parsePrice(price);
+  return `Rs ${num.toFixed(2)}`;
+};
+
 // ─── Inline qty stepper shown when item is already in cart ───────────────────
 
 const QtyControl: React.FC<{ productId: string; qty: number; onOpen: () => void }> = ({
@@ -236,7 +241,7 @@ export const ProductList = () => {
                   </p>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 18, fontWeight: 800 }}>{product.price}</span>
+                    <span style={{ fontSize: 18, fontWeight: 800 }}>{formatPrice(product.price)}</span>
 
                     {outOfStock ? (
                       <span style={{ fontSize: 12, color: '#fca5a5', fontWeight: 600 }}>

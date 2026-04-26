@@ -10,6 +10,11 @@ const parsePrice = (price: string): number => {
   return isNaN(n) ? 0 : n;
 };
 
+const formatPrice = (price: string): string => {
+  const num = parsePrice(price);
+  return `Rs ${num.toFixed(2)}`;
+};
+
 export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -75,7 +80,7 @@ export const ProductDetail = () => {
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 32, fontWeight: 800 }}>{product.price}</div>
+              <div style={{ fontSize: 32, fontWeight: 800 }}>{formatPrice(product.price)}</div>
               <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>excluding delivery</div>
             </div>
           </div>

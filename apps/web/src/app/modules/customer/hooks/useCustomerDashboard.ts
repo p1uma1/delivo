@@ -3,11 +3,11 @@ import api from '../../../../shared/api/api';
 import { CustomerDashboardData, CustomerOrderHistory, RecommendedItem } from '../types/customer.types';
 
 const defaultRecommended: RecommendedItem[] = [
-  { name: 'New Item', merchant: 'New Merchant', price: '$10.00', rating: '4.5', icon: '🍽️', time: '20 min' },
-  { name: 'Classic Burger', merchant: 'Burger Bliss', price: '$12.50', rating: '4.9', icon: '🍔', time: '20 min' },
-  { name: 'Margherita Pizza', merchant: 'Pizza Palace', price: '$16.00', rating: '4.7', icon: '🍕', time: '30 min' },
-  { name: 'Dragon Roll', merchant: 'Sushi Stop', price: '$18.50', rating: '4.8', icon: '🍱', time: '25 min' },
-  { name: 'Acai Bowl', merchant: 'Green Bowl', price: '$11.00', rating: '4.6', icon: '🥗', time: '15 min' },
+  { name: 'New Item', merchant: 'New Merchant', price: 'Rs 10.00', rating: '4.5', icon: '🍽️', time: '20 min' },
+  { name: 'Classic Burger', merchant: 'Burger Bliss', price: 'Rs 12.50', rating: '4.9', icon: '🍔', time: '20 min' },
+  { name: 'Margherita Pizza', merchant: 'Pizza Palace', price: 'Rs 16.00', rating: '4.7', icon: '🍕', time: '30 min' },
+  { name: 'Dragon Roll', merchant: 'Sushi Stop', price: 'Rs 18.50', rating: '4.8', icon: '🍱', time: '25 min' },
+  { name: 'Acai Bowl', merchant: 'Green Bowl', price: 'Rs 11.00', rating: '4.6', icon: '🥗', time: '15 min' },
 ];
 
 const emptyDashboard: CustomerDashboardData = {
@@ -17,7 +17,7 @@ const emptyDashboard: CustomerDashboardData = {
     id: '',
     merchant: '',
     items: [],
-    total: '$0.00',
+    total: 'Rs 0.00',
     eta: '-- min',
     rider: '',
     riderPhone: '',
@@ -39,7 +39,7 @@ const orderStageByStatus: Record<string, number> = {
 
 const formatMoney = (value: unknown) => {
   const numberValue = Number(value);
-  return Number.isFinite(numberValue) ? `$${numberValue.toFixed(2)}` : '$0.00';
+  return Number.isFinite(numberValue) ? `Rs ${numberValue.toFixed(2)}` : 'Rs 0.00';
 };
 
 const getItemLabel = (item: any) => {

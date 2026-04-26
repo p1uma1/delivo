@@ -70,7 +70,7 @@ export const NavCartButton: React.FC = () => {
       {/* Show total only when there are items */}
       {itemCount > 0 && (
         <span style={{ color: '#a5b4fc', fontWeight: 700, fontSize: 13 }}>
-          LKR {cartTotal.toFixed(2)}
+          Rs {cartTotal.toFixed(2)}
         </span>
       )}
     </button>

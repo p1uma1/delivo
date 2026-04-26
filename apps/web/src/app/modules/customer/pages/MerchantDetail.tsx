@@ -3,6 +3,11 @@ import { useMerchants } from '../hooks/useMerchants';
 import { useProducts } from '../hooks/useProducts';
 import { Star, Clock, MapPin, Store, Package } from 'lucide-react';
 
+const formatPrice = (price: string): string => {
+  const num = parseFloat(price.replace(/[^0-9.]/g, ''));
+  return isNaN(num) ? 'Rs 0.00' : `Rs ${num.toFixed(2)}`;
+};
+
 export const MerchantDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -97,7 +102,7 @@ export const MerchantDetail = () => {
                     {product.description}
                   </p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 800, color: '#a5b4fc' }}>{product.price}</span>
+                    <span style={{ fontWeight: 800, color: '#a5b4fc' }}>{formatPrice(product.price)}</span>
                     <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: 12 }} onClick={(e) => {
                       e.stopPropagation();
                       // Add to cart logic

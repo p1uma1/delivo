@@ -6,7 +6,7 @@ const emptyDashboardData: MerchantDashboardData = {
   storeName: '',
   storeEmail: '',
   stats: [
-    { label: "Today's Revenue", value: '$0.00', change: '0%', icon: 'revenue', color: '#fde68a' },
+    { label: "Today's Revenue", value: 'Rs 0.00', change: '0%', icon: 'revenue', color: '#fde68a' },
     { label: 'Active Orders', value: '0', change: '0', icon: 'active-orders', color: '#fb923c' },
     { label: 'Products Listed', value: '0', change: '0', icon: 'products', color: '#a5b4fc' },
     { label: 'Avg Rating', value: '0.0', change: '0', icon: 'rating', color: '#fde68a' },
@@ -55,14 +55,14 @@ export const useMerchantDashboard = () => {
               items: order.itemsText || 'Order items',
               status: (order.status || 'Preparing') as MerchantOrder['status'],
               time: order.timeAgo || 'Just now',
-              total: order.total ? `$${Number(order.total).toFixed(2)}` : '$0.00',
+              total: order.total ? `Rs ${Number(order.total).toFixed(2)}` : 'Rs 0.00',
             }))
           : [];
 
         const mappedProducts: MerchantProduct[] = Array.isArray(productsFromApi)
           ? productsFromApi.map((p: any) => ({
               name: p.name,
-              price: `$${Number(p.price).toFixed(2)}`,
+              price: `Rs ${Number(p.price).toFixed(2)}`,
               stock: (p.stock > 10 ? 'Available' : p.stock > 0 ? 'Low Stock' : 'Out of Stock') as MerchantProduct['stock'],
               orders: p.orders_count || 0,
               img: 'box',

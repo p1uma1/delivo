@@ -7,16 +7,16 @@ import { Users, Package, DollarSign, Bike, LayoutGrid, Store, BarChart2, Setting
 const fallbackStats = [
   { label: "Total Users", value: "12,482", change: "+8.2%", icon: "users", color: "#6ee7b7" },
   { label: "Active Orders", value: "3,291", change: "+12.5%", icon: "orders", color: "#93c5fd" },
-  { label: "Revenue Today", value: "$48,320", change: "+5.1%", icon: "revenue", color: "#fde68a" },
+  { label: "Revenue Today", value: "Rs 48,320", change: "+5.1%", icon: "revenue", color: "#fde68a" },
   { label: "Active Riders", value: "284", change: "-2.3%", icon: "riders", color: "#f9a8d4" },
 ];
 
 const fallbackRecentOrders: RecentOrder[] = [
-  { id: "#ORD-8821", customer: "Amara Silva", merchant: "Burger Bliss", status: "Delivered", amount: "$24.50", time: "2 min ago" },
-  { id: "#ORD-8820", customer: "Nimal Perera", merchant: "Pizza Palace", status: "In Transit", amount: "$38.00", time: "5 min ago" },
-  { id: "#ORD-8819", customer: "Dilani Fernando", merchant: "Sushi Stop", status: "Preparing", amount: "$52.75", time: "8 min ago" },
-  { id: "#ORD-8818", customer: "Kasun Jayawardena", merchant: "Spice Route", status: "Cancelled", amount: "$17.20", time: "12 min ago" },
-  { id: "#ORD-8817", customer: "Tharushi De Silva", merchant: "Green Bowl", status: "Delivered", amount: "$29.90", time: "18 min ago" },
+  { id: "#ORD-8821", customer: "Amara Silva", merchant: "Burger Bliss", status: "Delivered", amount: "Rs 24.50", time: "2 min ago" },
+  { id: "#ORD-8820", customer: "Nimal Perera", merchant: "Pizza Palace", status: "In Transit", amount: "Rs 38.00", time: "5 min ago" },
+  { id: "#ORD-8819", customer: "Dilani Fernando", merchant: "Sushi Stop", status: "Preparing", amount: "Rs 52.75", time: "8 min ago" },
+  { id: "#ORD-8818", customer: "Kasun Jayawardena", merchant: "Spice Route", status: "Cancelled", amount: "Rs 17.20", time: "12 min ago" },
+  { id: "#ORD-8817", customer: "Tharushi De Silva", merchant: "Green Bowl", status: "Delivered", amount: "Rs 29.90", time: "18 min ago" },
 ];
 
 const fallbackUsers: AdminUser[] = [

@@ -139,7 +139,7 @@ export const OrderConfirmation = () => {
             <Row label="Items" value={`${itemCount} item${itemCount > 1 ? 's' : ''}`} />
           )}
           {itemTotal > 0 && (
-            <Row label="Item Total" value={`LKR ${itemTotal.toFixed(2)}`} accent />
+            <Row label="Item Total" value={`Rs ${itemTotal.toFixed(2)}`} accent />
           )}
           <Row label="Payment" value="Cash on Delivery" />
           <Row label="Status" value="Waiting for rider offers" badge />
