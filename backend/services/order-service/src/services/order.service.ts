@@ -24,7 +24,7 @@ export class OrderService {
       throw new ValidationError('Order must contain at least one item');
     }
 
-    const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const itemTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const order = await orderRepository.create({
       customerId,
@@ -32,16 +32,14 @@ export class OrderService {
       merchantName,
       pickupAddress: pickupAddress || 'Store Pickup', // Default if not provided
       deliveryAddress,
-      totalAmount,
+      itemTotal,
       notes,
-      items: {
-        create: items.map(item => ({
-          productId: item.productId,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-      },
+      items: items.map(item => ({
+        productId: item.productId,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
     });
 
     // Publish event
@@ -50,7 +48,7 @@ export class OrderService {
       customerId: order.customerId,
       pickupAddress: order.pickupAddress,
       deliveryAddress: order.deliveryAddress,
-      totalAmount: order.totalAmount,
+      totalAmount: order.itemTotal,
       items: order.items,
     });
 

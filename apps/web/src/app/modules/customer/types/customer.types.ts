@@ -58,10 +58,12 @@ export interface Product {
   description: string;
   price: string;
   category: string;
-  icon: string;
-  merchantId: string;
-  merchantName?: string;
+  icon?: string;
+  merchant_id: string;
+  merchant_name?: string;
   stock?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // ─── Cart ────────────────────────────────────────────────────────────────────
@@ -73,7 +75,6 @@ export interface CartItem {
   merchantName: string;
   unitPrice: number;
   quantity: number;
-  icon?: string;
 }
 
 export interface CartState {

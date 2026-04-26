@@ -13,7 +13,7 @@ export const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { product, loading: pLoading } = useProducts(id);
-  const { merchant } = useMerchants(product?.merchantId);
+  const { merchant } = useMerchants(product?.merchant_id);
   const { addToCart, updateQty, state, openDrawer } = useCartContext();
   const [flash, setFlash] = useState(false);
 
@@ -24,12 +24,12 @@ export const ProductDetail = () => {
   const qty = state.items.find((i) => i.productId === product.id)?.quantity ?? 0;
 
   const handleAdd = () => {
-    console.log("Add to cart called ", product.id, product.name, product.merchantId, product.merchantName, parsePrice(product.price), product.icon)
+    console.log("Add to cart called ", product.id, product.name, product.merchant_id, product.merchant_name, parsePrice(product.price), product.icon)
     addToCart({
       productId: product.id,
       productName: product.name,
-      merchantId: product.merchantId,
-      merchantName: product.merchantName ?? merchant?.name ?? 'Merchant',
+      merchantId: product.merchant_id,
+      merchantName: product.merchant_name ?? merchant?.name ?? 'Merchant',
       unitPrice: parsePrice(product.price),
       icon: product.icon,
     });
@@ -108,13 +108,13 @@ export const ProductDetail = () => {
         <div
           className="card"
           style={{ display: 'flex', alignItems: 'center', gap: 20, padding: 20, cursor: 'pointer', transition: 'background 0.2s' }}
-          onClick={() => navigate(`/merchants/${product.merchantId}`)}
+          onClick={() => navigate(`/merchants/${product.merchant_id}`)}
           onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
           onMouseOut={(e) => (e.currentTarget.style.background = 'var(--card-bg)')}
         >
           <div style={{ fontSize: 40, background: '#1f2937', padding: 15, borderRadius: 15 }}>{merchant?.icon ?? '🏪'}</div>
           <div style={{ flex: 1 }}>
-            <h4 style={{ margin: 0, fontSize: 20 }}>{merchant?.name ?? product.merchantName}</h4>
+            <h4 style={{ margin: 0, fontSize: 20 }}>{merchant?.name ?? product.merchant_name}</h4>
             <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--text-dim)' }}>{merchant?.description ?? 'Quality merchant partner'}</p>
           </div>
           <div style={{ textAlign: 'right' }}>

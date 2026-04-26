@@ -1,12 +1,12 @@
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
+
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import { createLogger, globalErrorHandler } from '@delivo/shared';
 import cartRoutes from './routes/cart.routes';
-import dotenv from 'dotenv';
-import path from 'path';
-
-dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 const logger = createLogger('cart-service');
 const app = express();

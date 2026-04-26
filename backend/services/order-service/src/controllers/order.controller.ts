@@ -66,7 +66,7 @@ export class OrderController {
     try {
       const orders = await orderService.getCustomerOrders(req.user!.userId);
       const totalOrders = orders.length;
-      const totalSpent = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+      const totalSpent = orders.reduce((sum, o) => sum + o.itemTotal, 0);
       
       // Find most frequent merchant
       const merchantCounts: Record<string, number> = {};

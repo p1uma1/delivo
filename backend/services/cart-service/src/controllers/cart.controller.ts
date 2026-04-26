@@ -10,7 +10,7 @@ export class CartController {
         return res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
       }
 
-      const cart = cartRepository.getCart(customerId);
+      const cart = await cartRepository.getCart(customerId);
       res.status(200).json({ success: true, data: cart });
     } catch (error) {
       next(error);
@@ -25,7 +25,7 @@ export class CartController {
       }
 
       const item = req.body;
-      const updatedItem = cartRepository.addItem(customerId, item);
+      const updatedItem = await cartRepository.addItem(customerId, item);
       res.status(201).json({ success: true, data: updatedItem });
     } catch (error) {
       next(error);
@@ -42,7 +42,7 @@ export class CartController {
       const { productId } = req.params;
       const { quantity } = req.body;
 
-      cartRepository.updateItemQuantity(customerId, productId, quantity);
+      await cartRepository.updateItemQuantity(customerId, productId, quantity);
       res.status(200).json({ success: true });
     } catch (error) {
       next(error);
@@ -57,7 +57,7 @@ export class CartController {
       }
 
       const { productId } = req.params;
-      cartRepository.removeItem(customerId, productId);
+      await cartRepository.removeItem(customerId, productId);
       res.status(200).json({ success: true });
     } catch (error) {
       next(error);
@@ -71,7 +71,7 @@ export class CartController {
         return res.status(401).json({ success: false, error: { message: 'Unauthorized' } });
       }
 
-      cartRepository.clearCart(customerId);
+      await cartRepository.clearCart(customerId);
       res.status(200).json({ success: true });
     } catch (error) {
       next(error);
