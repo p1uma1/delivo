@@ -21,11 +21,13 @@ export interface MerchantProduct {
   stock: 'Available' | 'Low Stock' | 'Out of Stock';
   orders: number;
   img: string;
+  imageUrl?: string;
 }
 
 export interface MerchantDashboardData {
   storeName: string;
   storeEmail: string;
+  logoUrl?: string;
   stats: MerchantStat[];
   orders: MerchantOrder[];
   products: MerchantProduct[];

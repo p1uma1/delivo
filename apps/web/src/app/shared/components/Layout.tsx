@@ -32,10 +32,10 @@ export const Layout: React.FC<LayoutProps> = ({ user, onLogout, children }) => {
         </div>
 
         <nav style={{ display: 'flex', gap: '2rem' }}>
-          <a href="#" style={{ color: 'white', textDecoration: 'none', fontWeight: 500 }}>
+          <a href="/" style={{ color: 'white', textDecoration: 'none', fontWeight: 500 }}>
             Dashboard
           </a>
-          <a href="#" style={{ color: 'var(--text-dim)', textDecoration: 'none', fontWeight: 500 }}>
+          <a href="/settings" style={{ color: 'var(--text-dim)', textDecoration: 'none', fontWeight: 500 }}>
             Settings
           </a>
         </nav>

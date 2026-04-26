@@ -1,4 +1,5 @@
 import { useRiderDashboard } from '../hooks/useRiderDashboard';
+import { CheckCircle, Banknote, MapPin, Star, Bell, Phone, Navigation, Activity } from 'lucide-react';
 
 const steps = ['Order Placed', 'Confirmed', 'Preparing', 'On the Way', 'Delivered'];
 
@@ -42,11 +43,12 @@ export const RiderDashboard = () => {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button className="btn" style={{ background: data.isOnline ? 'linear-gradient(135deg,#6ee7b7,#06b6d4)' : '#374151', color: data.isOnline ? '#0d0d0d' : '#cbd5e1', fontWeight: 700 }}>
-            {data.isOnline ? '🟢 Online' : '⚫ Offline'}
+          <button className="btn" style={{ background: data.isOnline ? 'linear-gradient(135deg,#6ee7b7,#06b6d4)' : '#374151', color: data.isOnline ? '#0d0d0d' : '#cbd5e1', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: data.isOnline ? '#052e16' : '#94a3b8' }} />
+            {data.isOnline ? 'Online' : 'Offline'}
           </button>
-          <button className="btn" style={{ background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
-            🔔 3 Notifications
+          <button className="btn" style={{ background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Bell size={16} /> 3 Notifications
           </button>
         </div>
       </div>
@@ -67,30 +69,36 @@ export const RiderDashboard = () => {
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, opacity: loading ? 0.75 : 1 }}>
-        {[
-          { label: 'Deliveries Done', value: '8', icon: '✅', color: '#6ee7b7' },
-          { label: 'Earnings Today', value: '$38.40', icon: '💵', color: '#fde68a' },
-          { label: 'Distance', value: '42 km', icon: '📍', color: '#93c5fd' },
-          { label: 'Avg Rating', value: '4.9 ★', icon: '⭐', color: '#fde68a' },
-        ].map((stat) => (
-          <div key={stat.label} className="card" style={{ padding: 18, position: 'relative', overflow: 'hidden' }}>
-            <div
-              style={{
-                position: 'absolute',
-                top: -24,
-                right: -24,
-                width: 84,
-                height: 84,
-                borderRadius: '50%',
-                background: stat.color,
-                opacity: 0.08,
-              }}
-            />
-            <div style={{ fontSize: 24 }}>{stat.icon}</div>
-            <div style={{ fontSize: 30, fontWeight: 700, marginTop: 8 }}>{stat.value}</div>
-            <div style={{ color: 'var(--text-dim)', fontSize: 13 }}>{stat.label}</div>
-          </div>
-        ))}
+        {data.todayStats.map((stat) => {
+          const Icon = {
+            'deliveries': CheckCircle,
+            'earnings': Banknote,
+            'distance': MapPin,
+            'rating': Star
+          }[stat.icon] || Activity;
+
+          return (
+            <div key={stat.label} className="card" style={{ padding: 18, position: 'relative', overflow: 'hidden' }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: -24,
+                  right: -24,
+                  width: 84,
+                  height: 84,
+                  borderRadius: '50%',
+                  background: stat.color,
+                  opacity: 0.08,
+                }}
+              />
+              <div style={{ color: stat.color }}>
+                <Icon size={24} />
+              </div>
+              <div style={{ fontSize: 30, fontWeight: 700, marginTop: 8 }}>{stat.value}</div>
+              <div style={{ color: 'var(--text-dim)', fontSize: 13 }}>{stat.label}</div>
+            </div>
+          );
+        })}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
@@ -186,14 +194,14 @@ export const RiderDashboard = () => {
             </div>
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button className="btn" style={{ flex: 1, minWidth: 120, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
-                📞 Call
+              <button className="btn" style={{ flex: 1, minWidth: 120, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151', display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                <Phone size={16} /> Call
               </button>
-              <button className="btn" style={{ flex: 1, minWidth: 120, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
-                🗺️ Navigate
+              <button className="btn" style={{ flex: 1, minWidth: 120, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151', display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                <Navigation size={16} /> Navigate
               </button>
-              <button className="btn btn-primary" style={{ flex: 1, minWidth: 120 }}>
-                ✓ Complete
+              <button className="btn btn-primary" style={{ flex: 1, minWidth: 120, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                <CheckCircle size={16} /> Complete
               </button>
             </div>
           </div>
@@ -240,7 +248,11 @@ export const RiderDashboard = () => {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#6ee7b7' }}>{delivery.earning}</div>
-                  <div style={{ fontSize: 12, color: '#fde68a' }}>{'★'.repeat(delivery.rating)}{'☆'.repeat(5 - delivery.rating)}</div>
+                  <div style={{ fontSize: 12, color: '#fde68a', display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={10} fill={i < delivery.rating ? '#fde68a' : 'transparent'} color={i < delivery.rating ? '#fde68a' : '#374151'} />
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}

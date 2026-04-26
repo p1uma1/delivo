@@ -12,7 +12,7 @@ const fallbackProducts: Product[] = [
 ];
 
 export const useProducts = (productId?: string, merchantId?: string) => {
-  const [products, setProducts] = useState<Product[]>(fallbackProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,24 +31,24 @@ export const useProducts = (productId?: string, merchantId?: string) => {
         if (productId) {
           const response = await api.get(`/products/${productId}`);
           const raw = response.data?.data || response.data;
-          setProduct(raw ? mapProduct(raw) : fallbackProducts.find(p => p.id === productId) || null);
+          setProduct(raw ? mapProduct(raw) : null);
         } else if (merchantId) {
           const response = await api.get(`/products/merchant/${merchantId}`);
           const data = response.data?.data || response.data || [];
-          setProducts(Array.isArray(data) && data.length > 0 ? data.map(mapProduct) : fallbackProducts.filter(p => p.merchant_id === merchantId));
+          setProducts(Array.isArray(data) ? data.map(mapProduct) : []);
         } else {
           const response = await api.get('/products');
           const data = response.data?.data || response.data || [];
-          setProducts(Array.isArray(data) && data.length > 0 ? data.map(mapProduct) : fallbackProducts);
+          setProducts(Array.isArray(data) ? data.map(mapProduct) : []);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load products');
         if (productId) {
-          setProduct(fallbackProducts.find(p => p.id === productId) || null);
+          setProduct(null);
         } else if (merchantId) {
-          setProducts(fallbackProducts.filter(p => p.merchant_id === merchantId));
+          setProducts([]);
         } else {
-          setProducts(fallbackProducts);
+          setProducts([]);
         }
       } finally {
         setLoading(false);

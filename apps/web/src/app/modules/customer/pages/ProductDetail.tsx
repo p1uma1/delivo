@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
 import { useMerchants } from '../hooks/useMerchants';
 import { useCartContext } from '../context/CartContext';
+import { ShoppingCart, ArrowLeft, Heart, Store, Star, Package } from 'lucide-react';
 
 const parsePrice = (price: string): number => {
   const n = parseFloat(price.replace(/[^0-9.]/g, ''));
@@ -45,13 +46,19 @@ export const ProductDetail = () => {
   return (
     <section style={{ maxWidth: 800, margin: '0 auto', display: 'grid', gap: 30 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button className="btn" style={{ background: '#1f2937' }} onClick={() => navigate(-1)}>← Back</button>
+        <button className="btn" style={{ background: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => navigate(-1)}>
+          <ArrowLeft size={16} /> Back
+        </button>
         <span style={{ color: 'var(--text-dim)', fontSize: 14 }}>ID: {product.id}</span>
       </div>
 
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ height: 300, background: 'linear-gradient(135deg,#1e293b,#0f172a)', display: 'grid', placeItems: 'center', fontSize: 120, position: 'relative' }}>
-          {product.icon}
+        <div style={{ height: 300, background: 'linear-gradient(135deg,#1e293b,#0f172a)', display: 'grid', placeItems: 'center', position: 'relative' }}>
+          {product.image_url ? (
+            <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <Package size={120} color="rgba(255,255,255,0.05)" />
+          )}
           {outOfStock && (
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'grid', placeItems: 'center', fontSize: 18, fontWeight: 700, color: '#fca5a5', letterSpacing: 1 }}>
               OUT OF STOCK
@@ -87,8 +94,10 @@ export const ProductDetail = () => {
                   <span style={{ fontSize: 22, fontWeight: 800, color: '#a5b4fc', minWidth: 28, textAlign: 'center' }}>{qty}</span>
                   <button onClick={() => updateQty(product.id, qty + 1)} style={stepperBtn({ background: 'rgba(165,180,252,0.15)', color: '#a5b4fc' })} aria-label="Increase">+</button>
                 </div>
-                <button className="btn btn-primary" style={{ flex: 1, padding: '1rem', fontSize: 16, fontWeight: 700, minWidth: 160 }} onClick={openDrawer}>🛒 View Cart</button>
-              </>
+                  <button className="btn btn-primary" style={{ flex: 1, padding: '1rem', fontSize: 16, fontWeight: 700, minWidth: 160, display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }} onClick={openDrawer}>
+                    <ShoppingCart size={20} /> View Cart
+                  </button>
+                </>
             ) : (
               <button
                 className="btn btn-primary"
@@ -98,7 +107,9 @@ export const ProductDetail = () => {
                 {flash ? '✓ Added!' : 'Add to Cart'}
               </button>
             )}
-            <button className="btn" style={{ padding: '1rem 1.4rem', background: '#1f2937', flexShrink: 0 }}>❤️</button>
+            <button className="btn" style={{ padding: '1rem 1.4rem', background: '#1f2937', flexShrink: 0, display: 'grid', placeItems: 'center' }}>
+              <Heart size={20} />
+            </button>
           </div>
         </div>
       </div>
@@ -112,14 +123,22 @@ export const ProductDetail = () => {
           onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
           onMouseOut={(e) => (e.currentTarget.style.background = 'var(--card-bg)')}
         >
-          <div style={{ fontSize: 40, background: '#1f2937', padding: 15, borderRadius: 15 }}>{merchant?.icon ?? '🏪'}</div>
+          <div style={{ width: 70, height: 70, background: '#1f2937', borderRadius: 15, display: 'grid', placeItems: 'center' }}>
+            {merchant?.logo_url ? (
+              <img src={merchant.logo_url} alt="Merchant Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 15 }} />
+            ) : (
+              <Store size={32} color="rgba(255,255,255,0.1)" />
+            )}
+          </div>
           <div style={{ flex: 1 }}>
             <h4 style={{ margin: 0, fontSize: 20 }}>{merchant?.name ?? product.merchant_name}</h4>
             <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--text-dim)' }}>{merchant?.description ?? 'Quality merchant partner'}</p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ color: '#fde68a', fontWeight: 700 }}>★ {merchant?.rating ?? '4.8'}</div>
-            <div style={{ fontSize: 12, color: '#a5b4fc' }}>View Menu →</div>
+            <div style={{ color: '#fde68a', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end' }}>
+              <Star size={16} fill="#fde68a" /> {merchant?.rating ?? '4.8'}
+            </div>
+            <div style={{ fontSize: 12, color: '#a5b4fc', marginTop: 4 }}>View Menu →</div>
           </div>
         </div>
       </div>

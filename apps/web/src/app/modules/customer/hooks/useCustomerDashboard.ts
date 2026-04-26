@@ -10,27 +10,22 @@ const defaultRecommended: RecommendedItem[] = [
   { name: 'Acai Bowl', merchant: 'Green Bowl', price: '$11.00', rating: '4.6', icon: '🥗', time: '15 min' },
 ];
 
-const fallbackDashboard: CustomerDashboardData = {
-  name: 'Tharushi S.',
-  location: 'Colombo 03, Sri Lanka',
+const emptyDashboard: CustomerDashboardData = {
+  name: '',
+  location: '',
   activeOrder: {
-    id: '#ORD-8821',
-    merchant: 'Burger Bliss',
-    items: ['Classic Burger x1', 'Cheese Fries x2', 'Lemonade x1'],
-    total: '$27.50',
-    eta: '18 min',
-    rider: 'Chamara B.',
-    riderPhone: '+94 77 123 4567',
-    status: 2,
+    id: '',
+    merchant: '',
+    items: [],
+    total: '$0.00',
+    eta: '-- min',
+    rider: '',
+    riderPhone: '',
+    status: 0,
   },
-  orderHistory: [
-    { id: '#ORD-8804', merchant: 'Pizza Palace', date: 'Apr 23', total: '$38.00', status: 'Delivered', icon: '🍕' },
-    { id: '#ORD-8795', merchant: 'Sushi Stop', date: 'Apr 20', total: '$52.75', status: 'Delivered', icon: '🍱' },
-    { id: '#ORD-8780', merchant: 'Green Bowl', date: 'Apr 17', total: '$22.00', status: 'Delivered', icon: '🥗' },
-    { id: '#ORD-8762', merchant: 'Spice Route', date: 'Apr 12', total: '$33.50', status: 'Cancelled', icon: '🍛' },
-  ],
-  recommended: defaultRecommended,
-  cartCount: 3,
+  orderHistory: [],
+  recommended: [],
+  cartCount: 0,
 };
 
 const orderStageByStatus: Record<string, number> = {
@@ -54,7 +49,7 @@ const getItemLabel = (item: any) => {
 };
 
 export const useCustomerDashboard = () => {
-  const [data, setData] = useState<CustomerDashboardData>(fallbackDashboard);
+  const [data, setData] = useState<CustomerDashboardData>(emptyDashboard);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,18 +92,18 @@ export const useCustomerDashboard = () => {
         const activeSource = rawOrders.find((order: any) => !['DELIVERED', 'CANCELLED'].includes(String(order.status).toUpperCase())) || rawOrders[0];
         const activeOrder = activeSource
           ? {
-              id: activeSource.id || activeSource.orderId || fallbackDashboard.activeOrder.id,
-              merchant: activeSource.merchantName || activeSource.merchant || fallbackDashboard.activeOrder.merchant,
+              id: activeSource.id || activeSource.orderId || emptyDashboard.activeOrder.id,
+              merchant: activeSource.merchantName || activeSource.merchant || emptyDashboard.activeOrder.merchant,
               items: Array.isArray(activeSource.items)
                 ? activeSource.items.map((item: any) => getItemLabel(item))
-                : fallbackDashboard.activeOrder.items,
+                : emptyDashboard.activeOrder.items,
               total: formatMoney(activeSource.totalAmount ?? activeSource.total ?? 27.5),
-              eta: activeSource.eta || fallbackDashboard.activeOrder.eta,
-              rider: activeSource.riderName || fallbackDashboard.activeOrder.rider,
-              riderPhone: activeSource.riderPhone || fallbackDashboard.activeOrder.riderPhone,
-              status: orderStageByStatus[String(activeSource.status).toUpperCase()] ?? fallbackDashboard.activeOrder.status,
+              eta: activeSource.eta || emptyDashboard.activeOrder.eta,
+              rider: activeSource.riderName || emptyDashboard.activeOrder.rider,
+              riderPhone: activeSource.riderPhone || emptyDashboard.activeOrder.riderPhone,
+              status: orderStageByStatus[String(activeSource.status).toUpperCase()] ?? emptyDashboard.activeOrder.status,
             }
-          : fallbackDashboard.activeOrder;
+          : emptyDashboard.activeOrder;
 
         const stats = statsResult.status === 'fulfilled' ? statsResult.value.data?.data : null;
         const recommendedRaw = recommendedResult.status === 'fulfilled' ? recommendedResult.value.data : null;
@@ -119,23 +114,24 @@ export const useCustomerDashboard = () => {
               price: formatMoney(p.price),
               rating: p.rating || '4.5',
               icon: p.icon || '🍽️',
+              imageUrl: p.image_url,
               time: p.time || '25 min'
             }))
           : defaultRecommended;
 
         setData({
-          name: profile?.name || fallbackDashboard.name,
-          location: profile?.location || fallbackDashboard.location,
+          name: profile?.name || emptyDashboard.name,
+          location: profile?.location || emptyDashboard.location,
           activeOrder,
-          orderHistory: mappedOrders.length > 0 ? mappedOrders : fallbackDashboard.orderHistory,
+          orderHistory: mappedOrders.length > 0 ? mappedOrders : emptyDashboard.orderHistory,
           recommended: recommendedItems,
-          cartCount: Math.max(1, rawOrders.length || fallbackDashboard.cartCount),
+          cartCount: Math.max(0, rawOrders.length || emptyDashboard.cartCount),
           stats: stats || undefined,
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load customer dashboard';
         setError(message);
-        setData(fallbackDashboard);
+        setData(emptyDashboard);
       } finally {
         setLoading(false);
       }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../hooks/useCart';
+import { ShoppingCart, Trash2, Utensils, RefreshCw } from 'lucide-react';
 
 // ─── Styles (inline, matching existing dark theme) ───────────────────────────
 
@@ -55,7 +56,9 @@ const ReplaceMerchantDialog: React.FC<{
         boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
       }}
     >
-      <div style={{ fontSize: 36, marginBottom: 16, textAlign: 'center' }}>🛒</div>
+      <div style={{ display: 'grid', placeItems: 'center', marginBottom: 16 }}>
+        <ShoppingCart size={48} color="#a5b4fc" />
+      </div>
       <h3 style={{ margin: '0 0 10px', textAlign: 'center' }}>Start a new cart?</h3>
       <p style={{ color: 'var(--text-dim, #6b7280)', textAlign: 'center', fontSize: 14, lineHeight: 1.6, margin: '0 0 24px' }}>
         Your cart has items from <strong style={{ color: '#a5b4fc' }}>{currentMerchant}</strong>.
@@ -257,7 +260,7 @@ export const CartDrawer: React.FC = () => {
                   color: 'var(--text-dim, #6b7280)',
                 }}
               >
-                <div style={{ fontSize: 64 }}>🛒</div>
+                <ShoppingCart size={64} strokeWidth={1.5} style={{ opacity: 0.2 }} />
                 <div style={{ fontSize: 18, fontWeight: 600, color: '#cbd5e1' }}>Your cart is empty</div>
                 <div style={{ fontSize: 14, textAlign: 'center' }}>
                   Browse products and add items to start your order.
@@ -298,7 +301,7 @@ export const CartDrawer: React.FC = () => {
                         flexShrink: 0,
                       }}
                     >
-                      {item.icon || '🍽️'}
+                      {item.icon || <Utensils size={24} color="var(--text-dim)" />}
                     </div>
 
                     {/* Info */}
@@ -386,7 +389,7 @@ export const CartDrawer: React.FC = () => {
                         }}
                         aria-label="Remove item"
                       >
-                        🗑
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -542,7 +545,7 @@ export const CartDrawer: React.FC = () => {
               >
                 {placing ? (
                   <>
-                    <span style={{ fontSize: 18, animation: 'spin 1s linear infinite' }}>⟳</span>
+                    <RefreshCw size={18} className="animate-spin" />
                     Placing Order…
                   </>
                 ) : (
@@ -562,6 +565,7 @@ export const CartDrawer: React.FC = () => {
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
       `}</style>
     </>
   );

@@ -132,6 +132,16 @@ const getByMerchant = async (req, res) => {
   }
 };
 
+const getMyProducts = async (req, res) => {
+  try {
+    const merchantId = req.user.userId || req.user.id;
+    const products = await productService.getProductsByMerchant(merchantId);
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createProduct,
   getAllProducts,
@@ -141,5 +151,6 @@ module.exports = {
   searchProducts,
   getByCategory,
   getByMerchant,
+  getMyProducts,
   getRecommended
 };

@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMerchants } from '../hooks/useMerchants';
 import { useProducts } from '../hooks/useProducts';
+import { Star, Clock, MapPin, Store, Package } from 'lucide-react';
 
 export const MerchantDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,8 +23,12 @@ export const MerchantDetail = () => {
         alignItems: 'center',
         flexWrap: 'wrap'
       }}>
-        <div style={{ fontSize: 80, background: 'rgba(255,255,255,0.03)', borderRadius: 20, padding: 20 }}>
-          {merchant.icon}
+        <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 20, padding: 20, width: 120, height: 120, display: 'grid', placeItems: 'center' }}>
+          {merchant.logo_url ? (
+            <img src={merchant.logo_url} alt={merchant.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }} />
+          ) : (
+            <Store size={80} color="rgba(255,255,255,0.1)" />
+          )}
         </div>
         <div style={{ flex: 1, minWidth: 250 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
@@ -33,15 +38,15 @@ export const MerchantDetail = () => {
           <p style={{ color: 'var(--text-dim)', fontSize: 16, margin: '8px 0 20px 0' }}>{merchant.description}</p>
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ color: '#fde68a', fontSize: 18 }}>★</span>
+              <Star size={18} color="#fde68a" fill="#fde68a" />
               <span style={{ fontWeight: 700 }}>{merchant.rating} Rating</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ color: '#a5b4fc', fontSize: 18 }}>⏱</span>
+              <Clock size={18} color="#a5b4fc" />
               <span style={{ fontWeight: 700 }}>{merchant.time}</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ color: '#6ee7b7', fontSize: 18 }}>📍</span>
+              <MapPin size={18} color="#6ee7b7" />
               <span style={{ fontWeight: 700 }}>{merchant.address}</span>
             </div>
           </div>
@@ -79,9 +84,12 @@ export const MerchantDetail = () => {
                   borderRadius: 12,
                   display: 'grid',
                   placeItems: 'center',
-                  fontSize: 40
                 }}>
-                  {product.icon}
+                  {product.image_url ? (
+                    <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }} />
+                  ) : (
+                    <Package size={40} color="rgba(255,255,255,0.1)" />
+                  )}
                 </div>
                 <div style={{ flex: 1 }}>
                   <h4 style={{ margin: 0, fontSize: 17 }}>{product.name}</h4>

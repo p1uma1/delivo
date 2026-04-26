@@ -3,10 +3,10 @@ import api from '../../../../shared/api/api';
 import { RiderDashboardData, RiderRecentDelivery, RiderTodayStat } from '../types/rider.types';
 
 const fallbackStats: RiderTodayStat[] = [
-  { label: 'Deliveries Done', value: '8', icon: '✅', color: '#6ee7b7' },
-  { label: 'Earnings Today', value: '$38.40', icon: '💵', color: '#fde68a' },
-  { label: 'Distance', value: '42 km', icon: '📍', color: '#93c5fd' },
-  { label: 'Avg Rating', value: '4.9 ★', icon: '⭐', color: '#fde68a' },
+  { label: 'Deliveries Done', value: '8', icon: 'deliveries', color: '#6ee7b7' },
+  { label: 'Earnings Today', value: '$38.40', icon: 'earnings', color: '#fde68a' },
+  { label: 'Distance', value: '42 km', icon: 'distance', color: '#93c5fd' },
+  { label: 'Avg Rating', value: '4.9', icon: 'rating', color: '#fde68a' },
 ];
 
 const fallbackRecentDeliveries: RiderRecentDelivery[] = [

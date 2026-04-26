@@ -1,5 +1,6 @@
 import React from 'react';
 import { useCartContext } from '../context/CartContext';
+import { ShoppingCart } from 'lucide-react';
 
 /**
  * A fixed-position cart FAB that overlays the top-right corner of the viewport,
@@ -40,8 +41,8 @@ export const NavCartButton: React.FC = () => {
       }}
     >
       {/* Cart icon */}
-      <span style={{ fontSize: 18, lineHeight: 1, position: 'relative' }}>
-        🛒
+      <span style={{ fontSize: 18, lineHeight: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <ShoppingCart size={18} />
         {itemCount > 0 && (
           <span
             style={{

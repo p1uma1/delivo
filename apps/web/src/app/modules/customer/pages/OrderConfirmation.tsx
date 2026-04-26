@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { Check, Store, Bike, CheckCircle, Package, Banknote, Home, ShoppingCart } from 'lucide-react';
 
 interface LocationState {
   orderId?: string;
@@ -99,7 +100,7 @@ export const OrderConfirmation = () => {
             transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.1s',
           }}
         >
-          ✓
+          <Check size={36} color="#fff" strokeWidth={3} />
         </div>
 
         <div>
@@ -158,12 +159,12 @@ export const OrderConfirmation = () => {
       >
         <div style={{ fontSize: 14, fontWeight: 700, color: '#a5b4fc' }}>What happens next?</div>
         {[
-          { icon: '🏪', text: 'Merchant confirms your order' },
-          { icon: '🛵', text: 'Nearby riders send you delivery fee offers' },
-          { icon: '✅', text: 'You select your preferred rider' },
-          { icon: '📦', text: 'Rider picks up and delivers your order' },
-          { icon: '💵', text: 'Pay cash on delivery' },
-        ].map(({ icon, text }) => (
+          { Icon: Store, text: 'Merchant confirms your order' },
+          { Icon: Bike, text: 'Nearby riders send you delivery fee offers' },
+          { Icon: CheckCircle, text: 'You select your preferred rider' },
+          { Icon: Package, text: 'Rider picks up and delivers your order' },
+          { Icon: Banknote, text: 'Pay cash on delivery' },
+        ].map(({ Icon, text }) => (
           <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
               style={{
@@ -173,11 +174,11 @@ export const OrderConfirmation = () => {
                 borderRadius: 10,
                 display: 'grid',
                 placeItems: 'center',
-                fontSize: 16,
+                color: '#a5b4fc',
                 flexShrink: 0,
               }}
             >
-              {icon}
+              <Icon size={18} />
             </div>
             <div style={{ fontSize: 13, color: '#cbd5e1' }}>{text}</div>
           </div>
@@ -198,14 +199,14 @@ export const OrderConfirmation = () => {
           }}
           onClick={() => navigate('/')}
         >
-          🏠 Back to Home
+          <Home size={16} /> Back to Home
         </button>
         <button
           className="btn btn-primary"
-          style={{ flex: 1, minWidth: 140, padding: '12px 0' }}
+          style={{ flex: 1, minWidth: 140, padding: '12px 0', display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}
           onClick={() => navigate('/products')}
         >
-          🛒 Shop More
+          <ShoppingCart size={16} /> Shop More
         </button>
       </div>
     </div>
