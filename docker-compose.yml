@@ -105,6 +105,18 @@ services:
     networks:
       - delivo-network
 
+  cart-service:
+    build:
+      context: .
+      dockerfile: backend/services/cart-service/Dockerfile
+    container_name: delivo-cart-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3005
+    networks:
+      - delivo-network
+
   # ─── Frontend ───────────────────────────────────────────────────────────────
 
   web-app:
