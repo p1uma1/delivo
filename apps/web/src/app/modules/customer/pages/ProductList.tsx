@@ -86,8 +86,8 @@ export const ProductList = () => {
     addToCart({
       productId: p.id,
       productName: p.name,
-      merchantId: p.merchantId,
-      merchantName: p.merchantName ?? 'Unknown Merchant',
+      merchantId: p.merchant_id,
+      merchantName: p.merchant_name ?? 'Unknown Merchant',
       unitPrice: parsePrice(p.price),
       icon: p.icon,
     });
@@ -199,9 +199,9 @@ export const ProductList = () => {
                   </h3>
                   <div
                     style={{ fontSize: 12, color: '#a5b4fc', cursor: 'pointer', fontWeight: 600 }}
-                    onClick={() => navigate(`/merchants/${product.merchantId}`)}
+                    onClick={() => navigate(`/merchants/${product.merchant_id}`)}
                   >
-                    by {product.merchantName}
+                    by {product.merchant_name}
                   </div>
                 </div>
 

@@ -165,11 +165,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const addToCart = useCallback(
     async (item: Omit<CartItem, 'quantity'>) => {
       // Different merchant in cart → ask first
+      console.log(`[CartContext] Adding item from merchant ${item.merchantId}. Current: ${state.merchantId}. Items: ${state.items.length}`);
+      
       if (
         state.merchantId &&
-        state.merchantId !== item.merchantId &&
+        String(state.merchantId) !== String(item.merchantId) &&
         state.items.length > 0
       ) {
+        console.warn(`[CartContext] Merchant mismatch detected! Current: ${state.merchantId}, New: ${item.merchantId}`);
         setPendingAdd({ item: { ...item, quantity: 1 } });
         return;
       }

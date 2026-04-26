@@ -15,13 +15,21 @@ const createProduct = async (data) => {
 };
 
 const getAllProducts = async () => {
-  const result = await pool.query("SELECT * FROM products ORDER BY id DESC");
+  const result = await pool.query(`
+    SELECT p.*, mp.business_name as merchant_name 
+    FROM products p
+    LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+    ORDER BY p.id DESC
+  `);
   return result.rows;
 };
 
 const getProductById = async (id) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE id = $1",
+    `SELECT p.*, mp.business_name as merchant_name 
+     FROM products p
+     LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+     WHERE p.id = $1`,
     [id]
   );
 
@@ -69,7 +77,10 @@ const deleteProduct = async (id) => {
 
 const searchProducts = async (query) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE name ILIKE $1",
+    `SELECT p.*, mp.business_name as merchant_name 
+     FROM products p
+     LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+     WHERE p.name ILIKE $1`,
     [`%${query}%`]
   );
 
@@ -78,7 +89,10 @@ const searchProducts = async (query) => {
 
 const getProductsByCategory = async (category) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE category = $1 ORDER BY id DESC",
+    `SELECT p.*, mp.business_name as merchant_name 
+     FROM products p
+     LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+     WHERE p.category = $1 ORDER BY p.id DESC`,
     [category]
   );
 
@@ -87,7 +101,10 @@ const getProductsByCategory = async (category) => {
 
 const getProductsByMerchant = async (merchantId) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE merchant_id = $1 ORDER BY id DESC",
+    `SELECT p.*, mp.business_name as merchant_name 
+     FROM products p
+     LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+     WHERE p.merchant_id = $1 ORDER BY p.id DESC`,
     [merchantId]
   );
 

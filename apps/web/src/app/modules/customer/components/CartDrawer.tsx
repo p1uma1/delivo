@@ -140,6 +140,14 @@ export const CartDrawer: React.FC = () => {
       setAddressError('Please enter a delivery address.');
       return;
     }
+
+    // Check for multiple merchants
+    const merchantIds = new Set(state.items.map(i => i.merchantId));
+    if (merchantIds.size > 1) {
+      setAddressError('Your cart contains items from multiple merchants. This is not allowed.');
+      return;
+    }
+
     setAddressError('');
     clearPlaceError();
     await placeOrder(dropAddress.trim(), notes.trim() || undefined);
