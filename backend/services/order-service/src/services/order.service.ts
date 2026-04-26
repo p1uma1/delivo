@@ -3,18 +3,22 @@ import { publishEvent, NotFoundError, ValidationError } from '@delivo/shared';
 
 interface CreateOrderInput {
   customerId: string;
-  pickupAddress: string;
+  merchantId: string;
+  merchantName?: string;
+  pickupAddress?: string;
   deliveryAddress: string;
   items: {
+    productId?: string;
     name: string;
     quantity: number;
     price: number;
   }[];
+  notes?: string;
 }
 
 export class OrderService {
   async createOrder(input: CreateOrderInput) {
-    const { customerId, pickupAddress, deliveryAddress, items } = input;
+    const { customerId, merchantId, merchantName, pickupAddress, deliveryAddress, notes, items } = input;
 
     if (!items || items.length === 0) {
       throw new ValidationError('Order must contain at least one item');
@@ -24,11 +28,15 @@ export class OrderService {
 
     const order = await orderRepository.create({
       customerId,
-      pickupAddress,
+      merchantId,
+      merchantName,
+      pickupAddress: pickupAddress || 'Store Pickup', // Default if not provided
       deliveryAddress,
       totalAmount,
+      notes,
       items: {
         create: items.map(item => ({
+          productId: item.productId,
           name: item.name,
           quantity: item.quantity,
           price: item.price,
@@ -67,11 +75,11 @@ export class OrderService {
       throw new ValidationError('You can only cancel your own orders');
     }
 
-    if (order.status !== OrderStatus.PENDING) {
+    if (order.status !== 'PENDING') {
       throw new ValidationError(`Cannot cancel order in ${order.status} status`);
     }
 
-    const updatedOrder = await orderRepository.updateStatus(orderId, OrderStatus.CANCELLED);
+    const updatedOrder = await orderRepository.updateStatus(orderId, 'CANCELLED');
 
     await publishEvent('order.cancelled', {
       orderId: order.id,

@@ -28,8 +28,18 @@ const initialState: CartState = {
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
-    case 'LOAD':
-      return action.payload;
+    case 'LOAD': {
+      const payload = action.payload;
+      // Sanitize corrupted cart where items exist but merchantId is missing
+      if (payload.items && payload.items.length > 0 && !payload.merchantId) {
+        const validItem = payload.items.find(i => i.merchantId);
+        if (validItem) {
+          return { ...payload, merchantId: validItem.merchantId, merchantName: validItem.merchantName };
+        }
+        return initialState;
+      }
+      return payload;
+    }
 
     case 'ADD_ITEM': {
       const item = action.payload;

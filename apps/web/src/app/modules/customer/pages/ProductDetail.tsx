@@ -24,6 +24,7 @@ export const ProductDetail = () => {
   const qty = state.items.find((i) => i.productId === product.id)?.quantity ?? 0;
 
   const handleAdd = () => {
+    console.log("Add to cart called ", product.id, product.name, product.merchantId, product.merchantName, parsePrice(product.price), product.icon)
     addToCart({
       productId: product.id,
       productName: product.name,

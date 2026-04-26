@@ -11,10 +11,11 @@ router.get("/merchants/:id", authMiddleware, merchantController.getMerchantById)
 
 // ─── Product Routes ───────────────────────────────────
 router.post("/", authMiddleware, checkRole(["merchant", "admin"]), productController.createProduct);
+router.get("/recommended", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getRecommended);
 router.get("/", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getAllProducts);
 router.get("/search", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.searchProducts);
 router.get("/category/:category", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getByCategory);
-router.get("/merchant/:merchantId", authMiddleware, checkRole(["admin", "merchant"]), productController.getByMerchant);
+router.get("/merchant/:merchantId", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getByMerchant);
 
 // dynamic routes LAST
 router.get("/:id", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getProductById);

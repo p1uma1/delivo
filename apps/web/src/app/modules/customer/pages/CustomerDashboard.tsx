@@ -190,9 +190,9 @@ export const CustomerDashboard = () => {
           <h3 style={{ marginBottom: 14 }}>Your Stats</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16 }}>
             {[
-              { label: 'Total Orders', value: '48' },
-              { label: 'Saved', value: '$24.50' },
-              { label: 'Favourite', value: 'Burger Bliss' },
+              { label: 'Total Orders', value: data.stats?.totalOrders ?? '48' },
+              { label: 'Total Spent', value: data.stats?.totalSpent ? `$${data.stats.totalSpent}` : '$24.50' },
+              { label: 'Favourite', value: data.stats?.favoriteMerchant ?? 'Burger Bliss' },
             ].map((stat) => (
               <div key={stat.label} style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#a5b4fc' }}>{stat.value}</div>

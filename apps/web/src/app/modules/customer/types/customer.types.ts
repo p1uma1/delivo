@@ -34,6 +34,11 @@ export interface CustomerDashboardData {
   orderHistory: CustomerOrderHistory[];
   recommended: RecommendedItem[];
   cartCount: number;
+  stats?: {
+    totalOrders: number;
+    totalSpent: string;
+    favoriteMerchant: string;
+  };
 }
 
 export interface Merchant {

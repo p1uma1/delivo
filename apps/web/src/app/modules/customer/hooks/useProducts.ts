@@ -23,17 +23,23 @@ export const useProducts = (productId?: string, merchantId?: string) => {
         setLoading(true);
         setError(null);
 
+        const mapProduct = (p: any): Product => {
+          if (!p) return p;
+          return { ...p, merchantId: p.merchantId || p.merchant_id };
+        };
+
         if (productId) {
           const response = await api.get(`/products/${productId}`);
-          setProduct(response.data?.data || fallbackProducts.find(p => p.id === productId) || null);
+          const raw = response.data?.data || response.data;
+          setProduct(raw ? mapProduct(raw) : fallbackProducts.find(p => p.id === productId) || null);
         } else if (merchantId) {
-          const response = await api.get(`/merchants/${merchantId}/products`);
+          const response = await api.get(`/products/merchant/${merchantId}`);
           const data = response.data?.data || response.data || [];
-          setProducts(Array.isArray(data) && data.length > 0 ? data : fallbackProducts.filter(p => p.merchantId === merchantId));
+          setProducts(Array.isArray(data) && data.length > 0 ? data.map(mapProduct) : fallbackProducts.filter(p => p.merchantId === merchantId));
         } else {
           const response = await api.get('/products');
           const data = response.data?.data || response.data || [];
-          setProducts(Array.isArray(data) && data.length > 0 ? data : fallbackProducts);
+          setProducts(Array.isArray(data) && data.length > 0 ? data.map(mapProduct) : fallbackProducts);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load products');

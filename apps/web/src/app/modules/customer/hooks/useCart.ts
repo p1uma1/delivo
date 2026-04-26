@@ -12,8 +12,9 @@ export const useCart = () => {
 
   const placeOrder = useCallback(
     async (dropAddress: string, notes?: string) => {
+      console.log("place order called ", cart.state.merchantId, cart.state.items.length)
       if (!cart.state.merchantId || cart.state.items.length === 0) return;
-
+      console.log("place order called2")
       setPlacing(true);
       setPlaceError(null);
 

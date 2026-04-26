@@ -4,10 +4,14 @@ import cors from 'cors';
 import { createLogger, globalErrorHandler, connectRabbitMQ } from '@delivo/shared';
 import orderRoutes from './routes/order.routes';
 import { initOrderSubscribers } from './events/subscribers';
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
+
 
 const logger = createLogger('order-service');
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.ORDER_SERVICE_PORT || 3002;
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(helmet());

@@ -539,7 +539,7 @@ export const CartDrawer: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    🛍️ Place Order · LKR {cartTotal.toFixed(2)}
+                    Place Order · LKR {cartTotal.toFixed(2)}
                   </>
                 )}
               </button>
