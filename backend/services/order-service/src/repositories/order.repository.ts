@@ -5,6 +5,7 @@ export interface OrderItem {
   id: string;
   orderId: string;
   productId: string;
+  name?: string;
   quantity: number;
   price: number;
 }
@@ -12,13 +13,20 @@ export interface OrderItem {
 export interface Order {
   id: string;
   customerId: string;
+  merchantId: string;
+  merchantName?: string;
   status: OrderStatus;
   pickupAddress: string;
   deliveryAddress: string;
   totalAmount: number;
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
   items?: OrderItem[];
+  // Delivery info (aggregated)
+  eta?: string;
+  riderName?: string;
+  riderPhone?: string;
 }
 
 // In-memory store

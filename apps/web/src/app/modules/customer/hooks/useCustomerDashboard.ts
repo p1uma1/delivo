@@ -64,9 +64,11 @@ export const useCustomerDashboard = () => {
         setLoading(true);
         setError(null);
 
-        const [profileResult, ordersResult] = await Promise.allSettled([
+        const [profileResult, ordersResult, statsResult, recommendedResult] = await Promise.allSettled([
           api.get('/users/me'),
           api.get('/orders'),
+          api.get('/orders/stats'),
+          api.get('/products/recommended'),
         ]);
 
         const profile = profileResult.status === 'fulfilled' ? profileResult.value.data?.data?.user : null;
@@ -108,13 +110,27 @@ export const useCustomerDashboard = () => {
             }
           : fallbackDashboard.activeOrder;
 
+        const stats = statsResult.status === 'fulfilled' ? statsResult.value.data?.data : null;
+        const recommendedRaw = recommendedResult.status === 'fulfilled' ? recommendedResult.value.data : null;
+        const recommendedItems: RecommendedItem[] = Array.isArray(recommendedRaw) && recommendedRaw.length > 0
+          ? recommendedRaw.map((p: any) => ({
+              name: p.name,
+              merchant: p.merchantName || 'Merchant',
+              price: formatMoney(p.price),
+              rating: p.rating || '4.5',
+              icon: p.icon || '🍽️',
+              time: p.time || '25 min'
+            }))
+          : defaultRecommended;
+
         setData({
           name: profile?.name || fallbackDashboard.name,
           location: profile?.location || fallbackDashboard.location,
           activeOrder,
           orderHistory: mappedOrders.length > 0 ? mappedOrders : fallbackDashboard.orderHistory,
-          recommended: defaultRecommended,
+          recommended: recommendedItems,
           cartCount: Math.max(1, rawOrders.length || fallbackDashboard.cartCount),
+          stats: stats || undefined,
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load customer dashboard';

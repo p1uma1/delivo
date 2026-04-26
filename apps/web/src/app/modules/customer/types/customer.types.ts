@@ -34,4 +34,72 @@ export interface CustomerDashboardData {
   orderHistory: CustomerOrderHistory[];
   recommended: RecommendedItem[];
   cartCount: number;
+  stats?: {
+    totalOrders: number;
+    totalSpent: string;
+    favoriteMerchant: string;
+  };
+}
+
+export interface Merchant {
+  id: string;
+  name: string;
+  description: string;
+  rating: string;
+  time: string;
+  icon: string;
+  address: string;
+  category: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  icon: string;
+  merchantId: string;
+  merchantName?: string;
+  stock?: number;
+}
+
+// ─── Cart ────────────────────────────────────────────────────────────────────
+
+export interface CartItem {
+  productId: string;
+  productName: string;
+  merchantId: string;
+  merchantName: string;
+  unitPrice: number;
+  quantity: number;
+  icon?: string;
+}
+
+export interface CartState {
+  items: CartItem[];
+  merchantId: string | null;
+  merchantName: string | null;
+}
+
+// ─── Order ───────────────────────────────────────────────────────────────────
+
+export interface PlaceOrderPayload {
+  merchantId: string;
+  items: {
+    productId: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
+  dropAddress: string;
+  notes?: string;
+}
+
+export interface OrderConfirmation {
+  orderId: string;
+  status: string;
+  itemTotal: number;
+  merchantId: string;
+  createdAt: string;
 }

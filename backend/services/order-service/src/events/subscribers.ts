@@ -1,6 +1,6 @@
 import { subscribeEvent, createLogger } from '@delivo/shared';
 import { orderService } from '../services/order.service';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus } from '../repositories/order.repository';
 
 const logger = createLogger('order-service:events');
 
@@ -11,7 +11,7 @@ export async function initOrderSubscribers() {
     'delivery.assigned',
     async (payload) => {
       logger.info(`Updating order ${payload.orderId} to ASSIGNED`);
-      await orderService.updateOrderStatus(payload.orderId, OrderStatus.ASSIGNED);
+      await orderService.updateOrderStatus(payload.orderId, 'ASSIGNED');
     }
   );
 
@@ -21,7 +21,7 @@ export async function initOrderSubscribers() {
     'delivery.completed',
     async (payload) => {
       logger.info(`Updating order ${payload.orderId} to DELIVERED`);
-      await orderService.updateOrderStatus(payload.orderId, OrderStatus.DELIVERED);
+      await orderService.updateOrderStatus(payload.orderId, 'DELIVERED');
     }
   );
 }
