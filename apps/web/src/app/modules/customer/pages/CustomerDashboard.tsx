@@ -1,6 +1,7 @@
 import { useCustomerDashboard } from '../hooks/useCustomerDashboard';
 import { useNavigate } from 'react-router-dom';
 import { useCartContext } from '../context/CartContext';
+import { ShoppingCart, Search, MapPin, Star, Clock, Utensils, Phone, MessageCircle } from 'lucide-react';
 
 const steps = ['Order Placed', 'Confirmed', 'Preparing', 'On the Way', 'Delivered'];
 
@@ -9,6 +10,10 @@ const statusColor: Record<string, string> = {
   Cancelled: '#fca5a5',
   Processing: '#93c5fd',
 };
+
+const Skeleton = ({ width, height, borderRadius = 4, style }: any) => (
+  <div className="skeleton" style={{ width, height, borderRadius, ...style }} />
+);
 
 export const CustomerDashboard = () => {
   const { data, loading, error } = useCustomerDashboard();
@@ -31,8 +36,19 @@ export const CustomerDashboard = () => {
         }}
       >
         <div>
-          <h2 style={{ margin: 0, fontSize: 26 }}>Good evening, {data.name} 👋</h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13 }}>📍 {data.location}</p>
+          {loading ? (
+            <>
+              <Skeleton width={200} height={32} style={{ marginBottom: 8 }} />
+              <Skeleton width={150} height={18} />
+            </>
+          ) : (
+            <>
+              <h2 style={{ margin: 0, fontSize: 26 }}>Good evening, {data.name || 'User'}</h2>
+              <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <MapPin size={12} /> {data.location || 'Location'}
+              </p>
+            </>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {/* Live cart button with badge */}
@@ -42,7 +58,7 @@ export const CustomerDashboard = () => {
             style={{ background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151', position: 'relative' }}
             onClick={openDrawer}
           >
-            🛒 Cart
+            <ShoppingCart size={18} /> Cart
             {itemCount > 0 && (
               <span
                 style={{
@@ -69,21 +85,21 @@ export const CustomerDashboard = () => {
           <button
             className="btn"
             style={{ background: 'linear-gradient(135deg,#a5b4fc,#ec4899)', color: '#fff', fontWeight: 700 }}
-            onClick={() => navigate('/customer/products')}
+            onClick={() => navigate('/products')}
           >
             Order Now
           </button>
         </div>
       </div>
 
-      {error && (
+      {error && !loading && (
         <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#fca5a5', borderRadius: 10, padding: '10px 12px', fontSize: 13 }}>
-          Some customer services are unavailable, so fallback data is shown. ({error})
+          {error}
         </div>
       )}
 
       <div className="card" style={{ display: 'flex', gap: 12, padding: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ color: '#94a3b8', fontSize: 18 }}>🔍</span>
+        <Search size={20} color="#94a3b8" />
         <input
           placeholder="Search for food, restaurants..."
           style={{ background: 'none', border: 'none', outline: 'none', color: 'var(--text)', fontSize: 15, flex: 1, minWidth: 220 }}
@@ -134,8 +150,12 @@ export const CustomerDashboard = () => {
           </div>
 
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <button className="btn" style={{ flex: 1, minWidth: 140, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>📞 Call Rider</button>
-            <button className="btn" style={{ flex: 1, minWidth: 140, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>💬 Chat</button>
+            <button className="btn" style={{ flex: 1, minWidth: 140, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
+              <Phone size={14} /> Call Rider
+            </button>
+            <button className="btn" style={{ flex: 1, minWidth: 140, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
+              <MessageCircle size={14} /> Chat
+            </button>
           </div>
         </div>
 
@@ -167,38 +187,91 @@ export const CustomerDashboard = () => {
           <button className="btn" style={{ fontSize: 12, padding: '4px 10px' }} onClick={() => navigate('/products')}>View All</button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-          {data.recommended.map((item) => (
-            <div key={item.name} className="card" style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }} onClick={() => navigate('/products')}>
-              <div style={{ height: 100, background: '#1f2937', display: 'grid', placeItems: 'center', fontSize: 48 }}>{item.icon}</div>
-              <div style={{ padding: 14 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{item.name}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 10 }}>{item.merchant}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <span style={{ fontSize: 13, color: '#fde68a' }}>★ {item.rating}</span>
-                  <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>⏱ {item.time}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 16, fontWeight: 800 }}>{item.price}</span>
-                  <button className="btn btn-primary" style={{ padding: '0.55rem 0.9rem' }} onClick={(e) => { e.stopPropagation(); navigate('/products'); }}>Add +</button>
+          {loading ? (
+            [1, 2, 3, 4].map((i) => (
+              <div key={i} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <Skeleton width="100%" height={140} borderRadius={0} />
+                <div style={{ padding: 14 }}>
+                  <Skeleton width="70%" height={16} style={{ marginBottom: 8 }} />
+                  <Skeleton width="40%" height={12} style={{ marginBottom: 16 }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <Skeleton width="30%" height={12} />
+                    <Skeleton width="20%" height={12} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Skeleton width="40%" height={20} />
+                    <Skeleton width="30%" height={32} borderRadius={8} />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : data.recommended.length > 0 ? (
+            data.recommended.map((item) => (
+              <div key={item.name} className="card" style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }} onClick={() => navigate('/products')}>
+                <div style={{
+                  height: 140,
+                  background: 'linear-gradient(135deg, #1f2937, #111827)',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: 64,
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  overflow: 'hidden',
+                }}>
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    item.icon
+                  )}
+                </div>
+                <div style={{ padding: 14 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{item.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 10 }}>{item.merchant}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <span style={{ fontSize: 13, color: '#fde68a', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <Star size={14} fill="#fde68a" /> {item.rating}
+                    </span>
+                    <span style={{ fontSize: 12, color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <Clock size={14} /> {item.time}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 16, fontWeight: 800 }}>{item.price}</span>
+                    <button className="btn btn-primary" style={{ padding: '0.55rem 0.9rem' }} onClick={(e) => { e.stopPropagation(); navigate('/products'); }}>Add +</button>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : !error && (
+            <div style={{ color: 'var(--text-dim)', fontSize: 14, padding: 20 }}>No recommendations available.</div>
+          )}
         </div>
 
         <div className="card" style={{ padding: '18px 20px' }}>
           <h3 style={{ marginBottom: 14 }}>Your Stats</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16 }}>
-            {[
-              { label: 'Total Orders', value: data.stats?.totalOrders ?? '48' },
-              { label: 'Total Spent', value: data.stats?.totalSpent ? `$${data.stats.totalSpent}` : '$24.50' },
-              { label: 'Favourite', value: data.stats?.favoriteMerchant ?? 'Burger Bliss' },
-            ].map((stat) => (
-              <div key={stat.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#a5b4fc' }}>{stat.value}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 4 }}>{stat.label}</div>
-              </div>
-            ))}
+            {loading ? (
+              [1, 2, 3].map(i => (
+                <div key={i} style={{ textAlign: 'center' }}>
+                  <Skeleton width={60} height={24} style={{ margin: '0 auto 8px' }} />
+                  <Skeleton width={40} height={12} style={{ margin: '0 auto' }} />
+                </div>
+              ))
+            ) : (
+              [
+                { label: 'Total Orders', value: data.stats?.totalOrders ?? '0' },
+                { label: 'Total Spent', value: data.stats?.totalSpent ? `Rs ${data.stats.totalSpent}` : 'Rs 0.00' },
+                { label: 'Favourite', value: data.stats?.favoriteMerchant ?? 'None' },
+              ].map((stat) => (
+                <div key={stat.label} style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#a5b4fc' }}>{stat.value}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 4 }}>{stat.label}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

@@ -132,6 +132,25 @@ const getByMerchant = async (req, res) => {
   }
 };
 
+const getMyProducts = async (req, res) => {
+  try {
+    const merchantId = req.user.userId || req.user.id;
+    const products = await productService.getProductsByMerchant(merchantId);
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+const reserveStock = async (req, res) => {
+  try {
+    const { items } = req.body;
+    await productService.reserveStock(items);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createProduct,
   getAllProducts,
@@ -141,5 +160,7 @@ module.exports = {
   searchProducts,
   getByCategory,
   getByMerchant,
-  getRecommended
+  getMyProducts,
+  getRecommended,
+  reserveStock
 };

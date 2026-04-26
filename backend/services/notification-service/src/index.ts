@@ -1,7 +1,11 @@
 import { connectRabbitMQ, subscribeEvent, createLogger } from '@delivo/shared';
+import { initSocketServer } from './socket';
 import { handleOrderCreated } from './handlers/orderCreated';
 import { handleDeliveryAssigned } from './handlers/deliveryAssigned';
 import { handleDeliveryStatusUpdated } from './handlers/deliveryUpdated';
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 const logger = createLogger('notification-service');
 
@@ -10,9 +14,13 @@ async function start() {
     // Connect to RabbitMQ
     await connectRabbitMQ();
 
+    // Start Socket.io server
+    const socketPort = parseInt(process.env.NOTIFICATION_SOCKET_PORT || '3006');
+    initSocketServer(socketPort);
+
     // Subscribe to all relevant events
     // Exchange is 'delivo.events' (topic)
-    
+
     // 1. Order Created
     await subscribeEvent(
       'notification-service.order-created',

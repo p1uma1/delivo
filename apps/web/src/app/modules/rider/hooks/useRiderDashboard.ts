@@ -3,17 +3,17 @@ import api from '../../../../shared/api/api';
 import { RiderDashboardData, RiderRecentDelivery, RiderTodayStat } from '../types/rider.types';
 
 const fallbackStats: RiderTodayStat[] = [
-  { label: 'Deliveries Done', value: '8', icon: '✅', color: '#6ee7b7' },
-  { label: 'Earnings Today', value: '$38.40', icon: '💵', color: '#fde68a' },
-  { label: 'Distance', value: '42 km', icon: '📍', color: '#93c5fd' },
-  { label: 'Avg Rating', value: '4.9 ★', icon: '⭐', color: '#fde68a' },
+  { label: 'Deliveries Done', value: '8', icon: 'deliveries', color: '#6ee7b7' },
+  { label: 'Earnings Today', value: 'Rs 38.40', icon: 'earnings', color: '#fde68a' },
+  { label: 'Distance', value: '42 km', icon: 'distance', color: '#93c5fd' },
+  { label: 'Avg Rating', value: '4.9', icon: 'rating', color: '#fde68a' },
 ];
 
 const fallbackRecentDeliveries: RiderRecentDelivery[] = [
-  { id: '#ORD-8820', customer: 'Nimal Perera', address: 'Marine Dr, Colombo 06', time: '14:32', earning: '$5.20', rating: 5 },
-  { id: '#ORD-8815', customer: 'Dilani Fernando', address: 'Torrington Ave, Col 07', time: '13:48', earning: '$3.80', rating: 5 },
-  { id: '#ORD-8810', customer: 'Kasun Silva', address: 'Baseline Rd, Colombo 09', time: '12:20', earning: '$6.10', rating: 4 },
-  { id: '#ORD-8803', customer: 'Priya Jayasekara', address: 'Havelock Rd, Col 05', time: '11:05', earning: '$4.20', rating: 5 },
+  { id: '#ORD-8820', customer: 'Nimal Perera', address: 'Marine Dr, Colombo 06', time: '14:32', earning: 'Rs 5.20', rating: 5 },
+  { id: '#ORD-8815', customer: 'Dilani Fernando', address: 'Torrington Ave, Col 07', time: '13:48', earning: 'Rs 3.80', rating: 5 },
+  { id: '#ORD-8810', customer: 'Kasun Silva', address: 'Baseline Rd, Colombo 09', time: '12:20', earning: 'Rs 6.10', rating: 4 },
+  { id: '#ORD-8803', customer: 'Priya Jayasekara', address: 'Havelock Rd, Col 05', time: '11:05', earning: 'Rs 4.20', rating: 5 },
 ];
 
 const fallbackDashboard: RiderDashboardData = {
@@ -28,10 +28,10 @@ const fallbackDashboard: RiderDashboardData = {
     merchantAddress: '45 Galle Rd, Colombo 03',
     deliveryAddress: '12 Marine Dr, Colombo 06',
     items: ['Classic Burger x1', 'Cheese Fries x2', 'Lemonade x1'],
-    total: '$27.50',
+    total: 'Rs 27.50',
     distance: '3.2 km',
     eta: '12 min',
-    earning: '$4.50',
+    earning: 'Rs 4.50',
     status: 2,
   },
   todayStats: fallbackStats,
@@ -47,9 +47,9 @@ const deliveryStatusToStage: Record<string, number> = {
   FAILED: 4,
 };
 
-const toCurrency = (value: unknown, fallback = '$0.00') => {
+const toCurrency = (value: unknown, fallback = 'Rs 0.00') => {
   const numberValue = Number(value);
-  return Number.isFinite(numberValue) ? `$${numberValue.toFixed(2)}` : fallback;
+  return Number.isFinite(numberValue) ? `Rs ${numberValue.toFixed(2)}` : fallback;
 };
 
 const formatDeliveryItem = (item: any) => {

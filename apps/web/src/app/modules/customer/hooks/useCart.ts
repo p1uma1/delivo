@@ -48,10 +48,15 @@ export const useCart = () => {
           },
         });
       } catch (err: any) {
+        console.log("full error:", err);
+        console.log("response data:", err?.response?.data);
+
         const message =
+          err?.response?.data?.error?.message ||
           err?.response?.data?.message ||
           err?.message ||
           'Failed to place order. Please try again.';
+
         setPlaceError(message);
       } finally {
         setPlacing(false);

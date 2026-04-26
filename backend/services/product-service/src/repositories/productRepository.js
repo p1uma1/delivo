@@ -1,14 +1,14 @@
 const pool = require("../db/db");
 
 const createProduct = async (data) => {
-  const { name, description, price, category, stock, merchant_id } = data;
+  const { name, description, price, category, stock, merchant_id, image_url } = data;
 
   const result = await pool.query(
     `INSERT INTO products 
-    (name, description, price, category, stock, merchant_id)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    (name, description, price, category, stock, merchant_id, image_url)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *`,
-    [name, description, price, category, stock, merchant_id]
+    [name, description, price, category, stock, merchant_id, image_url]
   );
 
   return result.rows[0];
@@ -111,6 +111,26 @@ const getProductsByMerchant = async (merchantId) => {
   return result.rows;
 };
 
+const reduceStock = async (id, quantity) => {
+  // Use a single query with a WHERE clause to ensure stock is sufficient
+  const result = await pool.query(
+    `UPDATE products 
+     SET stock = stock - $2
+     WHERE id = $1 AND stock >= $2
+     RETURNING *`,
+    [id, quantity]
+  );
+
+  if (result.rowCount === 0) {
+    // Check if product exists to provide a better error message
+    const product = await pool.query("SELECT stock FROM products WHERE id = $1", [id]);
+    if (product.rowCount === 0) throw new Error(`Product ${id} not found`);
+    throw new Error(`Insufficient stock for product ${id}. Available: ${product.rows[0].stock}, Requested: ${quantity}`);
+  }
+
+  return result.rows[0];
+};
+
 module.exports = {
   createProduct,
   getAllProducts,
@@ -119,5 +139,6 @@ module.exports = {
   deleteProduct,
   searchProducts,
   getProductsByCategory,
-  getProductsByMerchant
+  getProductsByMerchant,
+  reduceStock
 };

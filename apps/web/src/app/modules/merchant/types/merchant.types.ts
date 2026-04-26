@@ -16,16 +16,23 @@ export interface MerchantOrder {
 }
 
 export interface MerchantProduct {
+  id: string;
   name: string;
+  description?: string;
+  category?: string;
   price: string;
+  priceNum: number;
   stock: 'Available' | 'Low Stock' | 'Out of Stock';
+  stockNum: number;
   orders: number;
   img: string;
+  imageUrl?: string;
 }
 
 export interface MerchantDashboardData {
   storeName: string;
   storeEmail: string;
+  logoUrl?: string;
   stats: MerchantStat[];
   orders: MerchantOrder[];
   products: MerchantProduct[];

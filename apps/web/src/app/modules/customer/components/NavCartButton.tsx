@@ -1,5 +1,6 @@
 import React from 'react';
 import { useCartContext } from '../context/CartContext';
+import { ShoppingCart } from 'lucide-react';
 
 /**
  * A fixed-position cart FAB that overlays the top-right corner of the viewport,
@@ -17,7 +18,7 @@ export const NavCartButton: React.FC = () => {
       style={{
         position: 'fixed',
         top: 16,
-        right: 90,           // sits left of the user-bar in the header
+        right: 150,           // sits left of the notification bell and user-bar
         zIndex: 900,
         display: 'flex',
         alignItems: 'center',
@@ -40,8 +41,8 @@ export const NavCartButton: React.FC = () => {
       }}
     >
       {/* Cart icon */}
-      <span style={{ fontSize: 18, lineHeight: 1, position: 'relative' }}>
-        🛒
+      <span style={{ fontSize: 18, lineHeight: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <ShoppingCart size={18} />
         {itemCount > 0 && (
           <span
             style={{
@@ -69,7 +70,7 @@ export const NavCartButton: React.FC = () => {
       {/* Show total only when there are items */}
       {itemCount > 0 && (
         <span style={{ color: '#a5b4fc', fontWeight: 700, fontSize: 13 }}>
-          LKR {cartTotal.toFixed(2)}
+          Rs {cartTotal.toFixed(2)}
         </span>
       )}
     </button>

@@ -24,6 +24,7 @@ export interface RecommendedItem {
   price: string;
   rating: string;
   icon: string;
+  imageUrl?: string;
   time: string;
 }
 
@@ -48,6 +49,7 @@ export interface Merchant {
   rating: string;
   time: string;
   icon: string;
+  logo_url?: string;
   address: string;
   category: string;
 }
@@ -59,6 +61,7 @@ export interface Product {
   price: string;
   category: string;
   icon?: string;
+  image_url?: string;
   merchant_id: string;
   merchant_name?: string;
   stock?: number;
@@ -75,6 +78,7 @@ export interface CartItem {
   merchantName: string;
   unitPrice: number;
   quantity: number;
+  icon?: string;
 }
 
 export interface CartState {

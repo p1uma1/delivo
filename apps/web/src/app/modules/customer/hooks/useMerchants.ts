@@ -11,7 +11,7 @@ const fallbackMerchants: Merchant[] = [
 ];
 
 export const useMerchants = (merchantId?: string) => {
-  const [merchants, setMerchants] = useState<Merchant[]>(fallbackMerchants);
+  const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [merchant, setMerchant] = useState<Merchant | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,18 +24,18 @@ export const useMerchants = (merchantId?: string) => {
 
         if (merchantId) {
           const response = await api.get(`/products/merchants/${merchantId}`);
-          setMerchant(response.data?.data || fallbackMerchants.find(m => m.id === merchantId) || null);
+          setMerchant(response.data?.data || null);
         } else {
           const response = await api.get('/products/merchants');
           const data = response.data?.data || response.data || [];
-          setMerchants(Array.isArray(data) && data.length > 0 ? data : fallbackMerchants);
+          setMerchants(Array.isArray(data) ? data : []);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load merchants');
         if (merchantId) {
-          setMerchant(fallbackMerchants.find(m => m.id === merchantId) || null);
+          setMerchant(null);
         } else {
-          setMerchants(fallbackMerchants);
+          setMerchants([]);
         }
       } finally {
         setLoading(false);
