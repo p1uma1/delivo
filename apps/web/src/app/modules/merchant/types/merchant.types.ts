@@ -16,9 +16,14 @@ export interface MerchantOrder {
 }
 
 export interface MerchantProduct {
+  id: string;
   name: string;
+  description?: string;
+  category?: string;
   price: string;
+  priceNum: number;
   stock: 'Available' | 'Low Stock' | 'Out of Stock';
+  stockNum: number;
   orders: number;
   img: string;
   imageUrl?: string;

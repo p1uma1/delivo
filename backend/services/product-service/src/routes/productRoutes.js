@@ -17,6 +17,7 @@ router.get("/search", authMiddleware, checkRole(["admin", "merchant", "customer"
 router.get("/category/:category", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getByCategory);
 router.get("/merchant/me", authMiddleware, checkRole(["merchant"]), productController.getMyProducts);
 router.get("/merchant/:merchantId", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getByMerchant);
+router.post("/reserve", productController.reserveStock);
 
 // dynamic routes LAST
 router.get("/:id", authMiddleware, checkRole(["admin", "merchant", "customer"]), productController.getProductById);

@@ -111,6 +111,26 @@ const getProductsByMerchant = async (merchantId) => {
   return result.rows;
 };
 
+const reduceStock = async (id, quantity) => {
+  // Use a single query with a WHERE clause to ensure stock is sufficient
+  const result = await pool.query(
+    `UPDATE products 
+     SET stock = stock - $2
+     WHERE id = $1 AND stock >= $2
+     RETURNING *`,
+    [id, quantity]
+  );
+
+  if (result.rowCount === 0) {
+    // Check if product exists to provide a better error message
+    const product = await pool.query("SELECT stock FROM products WHERE id = $1", [id]);
+    if (product.rowCount === 0) throw new Error(`Product ${id} not found`);
+    throw new Error(`Insufficient stock for product ${id}. Available: ${product.rows[0].stock}, Requested: ${quantity}`);
+  }
+
+  return result.rows[0];
+};
+
 module.exports = {
   createProduct,
   getAllProducts,
@@ -119,5 +139,6 @@ module.exports = {
   deleteProduct,
   searchProducts,
   getProductsByCategory,
-  getProductsByMerchant
+  getProductsByMerchant,
+  reduceStock
 };

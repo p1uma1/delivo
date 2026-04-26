@@ -18,7 +18,7 @@ export const NavCartButton: React.FC = () => {
       style={{
         position: 'fixed',
         top: 16,
-        right: 90,           // sits left of the user-bar in the header
+        right: 150,           // sits left of the notification bell and user-bar
         zIndex: 900,
         display: 'flex',
         alignItems: 'center',

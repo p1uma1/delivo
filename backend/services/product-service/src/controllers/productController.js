@@ -141,6 +141,15 @@ const getMyProducts = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const reserveStock = async (req, res) => {
+  try {
+    const { items } = req.body;
+    await productService.reserveStock(items);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
 module.exports = {
   createProduct,
@@ -152,5 +161,6 @@ module.exports = {
   getByCategory,
   getByMerchant,
   getMyProducts,
-  getRecommended
+  getRecommended,
+  reserveStock
 };

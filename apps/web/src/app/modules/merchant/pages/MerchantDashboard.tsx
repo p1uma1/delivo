@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useMerchantDashboard } from '../hooks/useMerchantDashboard';
-import { DollarSign, Activity, Package, Star, Store, Plus, Power } from 'lucide-react';
+import { DollarSign, Activity, Package, Star, Store, Plus, Power, Edit2 } from 'lucide-react';
+import { ProductModal } from '../components/ProductModal';
+import { MerchantProduct } from '../types/merchant.types';
 
 const statusColor: Record<string, string> = {
   New: '#6ee7b7',
@@ -16,10 +19,37 @@ const Skeleton = ({ width, height, borderRadius = 4, style }: any) => (
 );
 
 export const MerchantDashboard = () => {
-  const { data, loading, error } = useMerchantDashboard();
+  const { data, loading, error, refresh } = useMerchantDashboard();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
+  const handleAddClick = () => {
+    setSelectedProduct(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (product: MerchantProduct) => {
+    setSelectedProduct({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.priceNum,
+      category: product.category,
+      stock: product.stockNum,
+      image_url: product.imageUrl,
+    });
+    setIsModalOpen(true);
+  };
 
   return (
     <section style={{ display: 'grid', gap: 20 }}>
+      <ProductModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={() => refresh()} 
+        product={selectedProduct}
+      />
+      
       <div
         style={{
           background: 'linear-gradient(135deg, rgba(251,146,60,0.12), rgba(253,230,138,0.08))',
@@ -66,6 +96,7 @@ export const MerchantDashboard = () => {
           </button>
           <button
             className="btn"
+            onClick={handleAddClick}
             style={{ background: 'linear-gradient(135deg,#fde68a,#fb923c)', color: '#0d0d0d', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}
           >
             <Plus size={16} /> Add Product
@@ -206,7 +237,7 @@ export const MerchantDashboard = () => {
           ) : data.products.length > 0 ? (
             data.products.map((product) => (
               <div
-                key={product.name}
+                key={product.id}
                 style={{
                   padding: '14px 16px',
                   borderBottom: '1px solid rgba(255,255,255,0.06)',
@@ -241,20 +272,29 @@ export const MerchantDashboard = () => {
                     <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>{product.orders} orders</div>
                   </div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 700 }}>{product.price}</div>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      borderRadius: 999,
-                      padding: '2px 8px',
-                      background: `${statusColor[product.stock]}22`,
-                      color: statusColor[product.stock],
-                    }}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: 700 }}>{product.price}</div>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        borderRadius: 999,
+                        padding: '2px 8px',
+                        background: `${statusColor[product.stock]}22`,
+                        color: statusColor[product.stock],
+                      }}
+                    >
+                      {product.stock}
+                    </span>
+                  </div>
+                  <button 
+                    onClick={() => handleEditClick(product)}
+                    style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: 8, padding: 8, color: 'var(--text-dim)', cursor: 'pointer' }}
+                    title="Edit Product"
                   >
-                    {product.stock}
-                  </span>
+                    <Edit2 size={16} />
+                  </button>
                 </div>
               </div>
             ))

@@ -26,6 +26,24 @@ export class OrderService {
 
     const itemTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+    // Reserve stock synchronously before creating order
+    try {
+      const productServiceUrl = process.env.PRODUCT_SERVICE_INTERNAL_URL || 'http://localhost:3004';
+      const reserveResponse = await fetch(`${productServiceUrl}/products/reserve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: items.map(item => ({ productId: item.productId, quantity: item.quantity })) })
+      });
+
+      if (!reserveResponse.ok) {
+        const errorData = await reserveResponse.json() as any;
+        throw new ValidationError(`Stock reservation failed: ${errorData.error || reserveResponse.statusText}`);
+      }
+    } catch (err) {
+      if (err instanceof ValidationError) throw err;
+      throw new Error(`Failed to contact product service for stock reservation: ${(err as Error).message}`);
+    }
+
     const order = await orderRepository.create({
       customerId,
       merchantId,

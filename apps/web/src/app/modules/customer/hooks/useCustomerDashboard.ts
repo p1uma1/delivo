@@ -2,13 +2,6 @@ import { useEffect, useState } from 'react';
 import api from '../../../../shared/api/api';
 import { CustomerDashboardData, CustomerOrderHistory, RecommendedItem } from '../types/customer.types';
 
-const defaultRecommended: RecommendedItem[] = [
-  { name: 'New Item', merchant: 'New Merchant', price: 'Rs 10.00', rating: '4.5', icon: '🍽️', time: '20 min' },
-  { name: 'Classic Burger', merchant: 'Burger Bliss', price: 'Rs 12.50', rating: '4.9', icon: '🍔', time: '20 min' },
-  { name: 'Margherita Pizza', merchant: 'Pizza Palace', price: 'Rs 16.00', rating: '4.7', icon: '🍕', time: '30 min' },
-  { name: 'Dragon Roll', merchant: 'Sushi Stop', price: 'Rs 18.50', rating: '4.8', icon: '🍱', time: '25 min' },
-  { name: 'Acai Bowl', merchant: 'Green Bowl', price: 'Rs 11.00', rating: '4.6', icon: '🥗', time: '15 min' },
-];
 
 const emptyDashboard: CustomerDashboardData = {
   name: '',
@@ -83,7 +76,7 @@ export const useCustomerDashboard = () => {
             id: order.id || order.orderId || `#ORD-${8800 - index}`,
             merchant: order.merchantName || order.merchant || 'Merchant',
             date: order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Today',
-            total: formatMoney(order.totalAmount ?? order.total ?? 0),
+            total: formatMoney(order.itemTotal ?? order.totalAmount ?? order.total ?? 0),
             status,
             icon: order.icon || '🍽️',
           };
@@ -92,32 +85,32 @@ export const useCustomerDashboard = () => {
         const activeSource = rawOrders.find((order: any) => !['DELIVERED', 'CANCELLED'].includes(String(order.status).toUpperCase())) || rawOrders[0];
         const activeOrder = activeSource
           ? {
-              id: activeSource.id || activeSource.orderId || emptyDashboard.activeOrder.id,
-              merchant: activeSource.merchantName || activeSource.merchant || emptyDashboard.activeOrder.merchant,
-              items: Array.isArray(activeSource.items)
-                ? activeSource.items.map((item: any) => getItemLabel(item))
-                : emptyDashboard.activeOrder.items,
-              total: formatMoney(activeSource.totalAmount ?? activeSource.total ?? 27.5),
-              eta: activeSource.eta || emptyDashboard.activeOrder.eta,
-              rider: activeSource.riderName || emptyDashboard.activeOrder.rider,
-              riderPhone: activeSource.riderPhone || emptyDashboard.activeOrder.riderPhone,
-              status: orderStageByStatus[String(activeSource.status).toUpperCase()] ?? emptyDashboard.activeOrder.status,
-            }
+            id: activeSource.id || activeSource.orderId || emptyDashboard.activeOrder.id,
+            merchant: activeSource.merchantName || activeSource.merchant || emptyDashboard.activeOrder.merchant,
+            items: Array.isArray(activeSource.items)
+              ? activeSource.items.map((item: any) => getItemLabel(item))
+              : emptyDashboard.activeOrder.items,
+            total: formatMoney(activeSource.itemTotal ?? activeSource.totalAmount ?? activeSource.total ?? 0),
+            eta: activeSource.eta || emptyDashboard.activeOrder.eta,
+            rider: activeSource.riderName || emptyDashboard.activeOrder.rider,
+            riderPhone: activeSource.riderPhone || emptyDashboard.activeOrder.riderPhone,
+            status: orderStageByStatus[String(activeSource.status).toUpperCase()] ?? emptyDashboard.activeOrder.status,
+          }
           : emptyDashboard.activeOrder;
 
         const stats = statsResult.status === 'fulfilled' ? statsResult.value.data?.data : null;
         const recommendedRaw = recommendedResult.status === 'fulfilled' ? recommendedResult.value.data : null;
         const recommendedItems: RecommendedItem[] = Array.isArray(recommendedRaw) && recommendedRaw.length > 0
           ? recommendedRaw.map((p: any) => ({
-              name: p.name,
-              merchant: p.merchantName || 'Merchant',
-              price: formatMoney(p.price),
-              rating: p.rating || '4.5',
-              icon: p.icon || '🍽️',
-              imageUrl: p.image_url,
-              time: p.time || '25 min'
-            }))
-          : defaultRecommended;
+            name: p.name,
+            merchant: p.merchantName || 'Merchant',
+            price: formatMoney(p.price),
+            rating: p.rating || '4.5',
+            icon: p.icon || '🍽️',
+            imageUrl: p.image_url,
+            time: p.time || '25 min'
+          }))
+          : [];
 
         setData({
           name: profile?.name || emptyDashboard.name,
