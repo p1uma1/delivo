@@ -7,9 +7,8 @@ export interface DeliveryOffer {
   riderId: string;
   deliveryFee: number;
   estimatedMinutes?: number;
-  status: 'PENDING' | 'SELECTED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED';
+  status: 'pending' | 'selected' | 'rejected' | 'expired' | 'cancelled';
   createdAt: string;
-  updatedAt: string;
 }
 
 export class OfferRepository {
@@ -19,15 +18,13 @@ export class OfferRepository {
     deliveryFee: number;
     estimatedMinutes?: number;
   }): Promise<DeliveryOffer> {
-    const offerId = `OFF-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    
     try {
       const res = await query(
-        `INSERT INTO delivery_offers (id, order_id, rider_id, delivery_fee, estimated_minutes, status, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, 'PENDING', NOW(), NOW())
+        `INSERT INTO delivery_offers (order_id, rider_id, delivery_fee, estimated_minutes, status, created_at)
+         VALUES ($1, $2, $3, $4, 'pending', NOW())
          RETURNING id, order_id as "orderId", rider_id as "riderId", delivery_fee as "deliveryFee", 
-                   estimated_minutes as "estimatedMinutes", status, created_at as "createdAt", updated_at as "updatedAt"`,
-        [offerId, data.orderId, data.riderId, data.deliveryFee, data.estimatedMinutes || null]
+                   estimated_minutes as "estimatedMinutes", status, created_at as "createdAt"`,
+        [data.orderId, data.riderId, data.deliveryFee, data.estimatedMinutes || null]
       );
       
       return res.rows[0];
@@ -43,7 +40,7 @@ export class OfferRepository {
   async findByOrderId(orderId: string): Promise<DeliveryOffer[]> {
     const res = await query(
       `SELECT id, order_id as "orderId", rider_id as "riderId", delivery_fee as "deliveryFee", 
-              estimated_minutes as "estimatedMinutes", status, created_at as "createdAt", updated_at as "updatedAt"
+              estimated_minutes as "estimatedMinutes", status, created_at as "createdAt"
        FROM delivery_offers 
        WHERE order_id = $1 
        ORDER BY created_at DESC`,
@@ -56,7 +53,7 @@ export class OfferRepository {
   async findById(offerId: string): Promise<DeliveryOffer | null> {
     const res = await query(
       `SELECT id, order_id as "orderId", rider_id as "riderId", delivery_fee as "deliveryFee", 
-              estimated_minutes as "estimatedMinutes", status, created_at as "createdAt", updated_at as "updatedAt"
+              estimated_minutes as "estimatedMinutes", status, created_at as "createdAt"
        FROM delivery_offers 
        WHERE id = $1`,
       [offerId]
@@ -68,9 +65,9 @@ export class OfferRepository {
   async findByRiderId(riderId: string): Promise<DeliveryOffer[]> {
     const res = await query(
       `SELECT id, order_id as "orderId", rider_id as "riderId", delivery_fee as "deliveryFee", 
-              estimated_minutes as "estimatedMinutes", status, created_at as "createdAt", updated_at as "updatedAt"
+              estimated_minutes as "estimatedMinutes", status, created_at as "createdAt"
        FROM delivery_offers 
-       WHERE rider_id = $1 AND status = 'PENDING'
+       WHERE rider_id = $1 AND status = 'pending'
        ORDER BY created_at DESC`,
       [riderId]
     );
@@ -78,13 +75,13 @@ export class OfferRepository {
     return res.rows;
   }
 
-  async updateStatus(offerId: string, status: 'SELECTED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED'): Promise<DeliveryOffer> {
+  async updateStatus(offerId: string, status: 'selected' | 'rejected' | 'expired' | 'cancelled'): Promise<DeliveryOffer> {
     const res = await query(
       `UPDATE delivery_offers 
-       SET status = $1, updated_at = NOW()
+       SET status = $1
        WHERE id = $2
        RETURNING id, order_id as "orderId", rider_id as "riderId", delivery_fee as "deliveryFee", 
-                 estimated_minutes as "estimatedMinutes", status, created_at as "createdAt", updated_at as "updatedAt"`,
+                 estimated_minutes as "estimatedMinutes", status, created_at as "createdAt"`,
       [status, offerId]
     );
     
@@ -98,8 +95,8 @@ export class OfferRepository {
   async rejectOtherOffers(orderId: string, selectedOfferId: string): Promise<void> {
     await query(
       `UPDATE delivery_offers 
-       SET status = 'REJECTED', updated_at = NOW()
-       WHERE order_id = $1 AND id != $2 AND status = 'PENDING'`,
+       SET status = 'rejected'
+       WHERE order_id = $1 AND id != $2 AND status = 'pending'`,
       [orderId, selectedOfferId]
     );
   }
@@ -107,7 +104,7 @@ export class OfferRepository {
   async findOfferByOrderAndRider(orderId: string, riderId: string): Promise<DeliveryOffer | null> {
     const res = await query(
       `SELECT id, order_id as "orderId", rider_id as "riderId", delivery_fee as "deliveryFee", 
-              estimated_minutes as "estimatedMinutes", status, created_at as "createdAt", updated_at as "updatedAt"
+              estimated_minutes as "estimatedMinutes", status, created_at as "createdAt"
        FROM delivery_offers 
        WHERE order_id = $1 AND rider_id = $2`,
       [orderId, riderId]

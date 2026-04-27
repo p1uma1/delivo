@@ -2,40 +2,13 @@ import { useEffect, useState } from 'react';
 import api from '../../../../shared/api/api';
 import { RiderDashboardData, RiderRecentDelivery, RiderTodayStat, PendingOrder, DeliveryOffer } from '../types/rider.types';
 
-const fallbackStats: RiderTodayStat[] = [
-  { label: 'Deliveries Done', value: '8', icon: 'deliveries', color: '#6ee7b7' },
-  { label: 'Earnings Today', value: 'Rs 38.40', icon: 'earnings', color: '#fde68a' },
-  { label: 'Distance', value: '42 km', icon: 'distance', color: '#93c5fd' },
-  { label: 'Avg Rating', value: '4.9', icon: 'rating', color: '#fde68a' },
-];
-
-const fallbackRecentDeliveries: RiderRecentDelivery[] = [
-  { id: '#ORD-8820', customer: 'Nimal Perera', address: 'Marine Dr, Colombo 06', time: '14:32', earning: 'Rs 5.20', rating: 5 },
-  { id: '#ORD-8815', customer: 'Dilani Fernando', address: 'Torrington Ave, Col 07', time: '13:48', earning: 'Rs 3.80', rating: 5 },
-  { id: '#ORD-8810', customer: 'Kasun Silva', address: 'Baseline Rd, Colombo 09', time: '12:20', earning: 'Rs 6.10', rating: 4 },
-  { id: '#ORD-8803', customer: 'Priya Jayasekara', address: 'Havelock Rd, Col 05', time: '11:05', earning: 'Rs 4.20', rating: 5 },
-];
-
-const fallbackDashboard: RiderDashboardData = {
-  name: 'Chamara Bandara',
-  zone: 'Colombo Zone',
-  isOnline: true,
-  currentDelivery: {
-    id: '#ORD-8821',
-    customer: 'Amara Silva',
-    customerPhone: '+94 77 987 6543',
-    merchant: 'Burger Bliss',
-    merchantAddress: '45 Galle Rd, Colombo 03',
-    deliveryAddress: '12 Marine Dr, Colombo 06',
-    items: ['Classic Burger x1', 'Cheese Fries x2', 'Lemonade x1'],
-    total: 'Rs 27.50',
-    distance: '3.2 km',
-    eta: '12 min',
-    earning: 'Rs 4.50',
-    status: 2,
-  },
-  todayStats: fallbackStats,
-  recentDeliveries: fallbackRecentDeliveries,
+const emptyDashboard: RiderDashboardData = {
+  name: 'Unknown Rider',
+  zone: 'Unknown Zone',
+  isOnline: false,
+  currentDelivery: null,
+  todayStats: [],
+  recentDeliveries: [],
   pendingOrders: [],
   submittedOffers: [],
 };
@@ -64,9 +37,12 @@ const formatDeliveryItem = (item: any) => {
 };
 
 export const useRiderDashboard = () => {
-  const [data, setData] = useState<RiderDashboardData>(fallbackDashboard);
+  const [data, setData] = useState<RiderDashboardData>(emptyDashboard);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const reload = () => setRefreshTrigger(prev => prev + 1);
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -94,7 +70,7 @@ export const useRiderDashboard = () => {
         const submittedOffers = Array.isArray(submittedOffersData) ? submittedOffersData : [];
 
         const mappedRecentDeliveries: RiderRecentDelivery[] = rawAssignments.slice(0, 4).map((delivery: any, index: number) => ({
-          id: delivery.orderId || delivery.id || `#ORD-${8820 - index}`,
+          id: delivery.orderId || delivery.id,
           customer: delivery.customerName || delivery.customer || 'Customer',
           address: delivery.deliveryAddress || delivery.address || 'Unknown address',
           time: delivery.updatedAt ? new Date(delivery.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now',
@@ -106,44 +82,44 @@ export const useRiderDashboard = () => {
 
         const currentDelivery = activeSource
           ? {
-              id: activeSource.orderId || activeSource.id || fallbackDashboard.currentDelivery.id,
-              customer: activeSource.customerName || fallbackDashboard.currentDelivery.customer,
-              customerPhone: activeSource.customerPhone || fallbackDashboard.currentDelivery.customerPhone,
-              merchant: activeSource.merchantName || fallbackDashboard.currentDelivery.merchant,
-              merchantAddress: activeSource.pickupAddress || fallbackDashboard.currentDelivery.merchantAddress,
-              deliveryAddress: activeSource.deliveryAddress || fallbackDashboard.currentDelivery.deliveryAddress,
+              id: activeSource.orderId || activeSource.id || '',
+              customer: activeSource.customerName || '',
+              customerPhone: activeSource.customerPhone || '',
+              merchant: activeSource.merchantName || '',
+              merchantAddress: activeSource.pickupAddress || '',
+              deliveryAddress: activeSource.deliveryAddress || '',
               items: Array.isArray(activeSource.items)
                 ? activeSource.items.map((item: any) => formatDeliveryItem(item))
-                : fallbackDashboard.currentDelivery.items,
-              total: toCurrency(activeSource.totalAmount ?? activeSource.total ?? 27.5),
-              distance: activeSource.distance || fallbackDashboard.currentDelivery.distance,
-              eta: activeSource.eta || fallbackDashboard.currentDelivery.eta,
-              earning: toCurrency(activeSource.earning ?? 4.5),
-              status: deliveryStatusToStage[String(activeSource.status).toUpperCase()] ?? fallbackDashboard.currentDelivery.status,
+                : [],
+              total: toCurrency(activeSource.totalAmount ?? activeSource.total ?? 0),
+              distance: activeSource.distance || '0 km',
+              eta: activeSource.eta || '-',
+              earning: toCurrency(activeSource.earning ?? 0),
+              status: deliveryStatusToStage[String(activeSource.status).toUpperCase()] ?? 0,
             }
-          : fallbackDashboard.currentDelivery;
+          : null;
 
         setData({
-          name: profile?.name || fallbackDashboard.name,
-          zone: profile?.zone || profile?.location || fallbackDashboard.zone,
-          isOnline: typeof profile?.isOnline === 'boolean' ? profile.isOnline : fallbackDashboard.isOnline,
+          name: profile?.name || 'Unknown Rider',
+          zone: profile?.zone || profile?.location || 'Unknown Zone',
+          isOnline: typeof profile?.isOnline === 'boolean' ? profile.isOnline : false,
           currentDelivery,
-          todayStats: fallbackStats,
-          recentDeliveries: mappedRecentDeliveries.length > 0 ? mappedRecentDeliveries : fallbackRecentDeliveries,
+          todayStats: [], // Real API doesn't seem to have todayStats yet? We will return empty for now
+          recentDeliveries: mappedRecentDeliveries,
           pendingOrders,
           submittedOffers,
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load rider dashboard';
         setError(message);
-        setData(fallbackDashboard);
+        setData(emptyDashboard);
       } finally {
         setLoading(false);
       }
     };
 
     loadDashboard();
-  }, []);
+  }, [refreshTrigger]);
 
-  return { data, loading, error };
+  return { data, loading, error, reload };
 };

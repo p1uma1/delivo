@@ -9,55 +9,84 @@ interface PendingOrderCardProps {
   submittedOfferFee?: number;
 }
 
-export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }: PendingOrderCardProps) => {
+export const PendingOrderCard = ({
+  order,
+  onOfferSubmitted,
+  submittedOfferFee,
+}: PendingOrderCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deliveryFee, setDeliveryFee] = useState<string>('');
   const [estimatedMinutes, setEstimatedMinutes] = useState<string>('');
+  const [localSubmittedFee, setLocalSubmittedFee] = useState<number | undefined>();
+
+  const hasSubmittedOffer =
+    submittedOfferFee !== undefined || localSubmittedFee !== undefined;
+
+  const finalSubmittedFee = submittedOfferFee ?? localSubmittedFee;
 
   const handleSubmitOffer = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setError(null);
 
-    if (!deliveryFee || Number(deliveryFee) <= 0) {
+    const fee = Number(deliveryFee);
+
+    if (!deliveryFee || fee <= 0) {
       setError('Please enter a valid delivery fee');
       return;
     }
 
     try {
       setIsSubmitting(true);
+
       await api.post('/deliveries/offers', {
         orderId: order.id,
-        deliveryFee: Number(deliveryFee),
-        estimatedMinutes: estimatedMinutes ? Number(estimatedMinutes) : undefined,
+        deliveryFee: fee,
+        estimatedMinutes: estimatedMinutes
+          ? Number(estimatedMinutes)
+          : undefined,
       });
 
-      // Reset form
+      setLocalSubmittedFee(fee);
       setDeliveryFee('');
       setEstimatedMinutes('');
       setIsExpanded(false);
       onOfferSubmitted();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit offer');
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.message ||
+        err?.message ||
+        'Failed to submit offer';
+
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const hasSubmittedOffer = submittedOfferFee !== undefined;
-
   return (
     <div
       style={{
-        background: 'rgba(6, 182, 212, 0.05)',
-        border: '1px solid rgba(6, 182, 212, 0.2)',
+        background: hasSubmittedOffer
+          ? 'rgba(110, 231, 183, 0.06)'
+          : 'rgba(6, 182, 212, 0.05)',
+        border: hasSubmittedOffer
+          ? '1px solid rgba(110, 231, 183, 0.25)'
+          : '1px solid rgba(6, 182, 212, 0.2)',
         borderRadius: 12,
         padding: 16,
-        cursor: 'pointer',
+        cursor: hasSubmittedOffer ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s ease',
+        opacity: hasSubmittedOffer ? 0.72 : 1,
       }}
-      onClick={() => !hasSubmittedOffer && setIsExpanded(!isExpanded)}
+      onClick={() => {
+        if (!hasSubmittedOffer && !isSubmitting) {
+          setIsExpanded((prev) => !prev);
+        }
+      }}
     >
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
@@ -65,8 +94,11 @@ export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }:
           <h3 style={{ margin: '0 0 8px 0', fontSize: 15, fontWeight: 600 }}>
             {order.merchantName || 'Unknown Merchant'}
           </h3>
-          <p style={{ margin: 0, fontSize: 12, color: 'var(--text-dim)' }}>Order ID: {order.id}</p>
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--text-dim)' }}>
+            Order ID: {order.id}
+          </p>
         </div>
+
         {hasSubmittedOffer && (
           <div
             style={{
@@ -86,7 +118,7 @@ export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }:
       {/* Key Info */}
       <div style={{ marginTop: 12, display: 'grid', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-          <MapPin size={14} color='#06b6d4' />
+          <MapPin size={14} color="#06b6d4" />
           <div>
             <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 11 }}>From</p>
             <p style={{ margin: 0 }}>{order.pickupAddress}</p>
@@ -94,7 +126,7 @@ export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }:
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-          <MapPin size={14} color='#6ee7b7' />
+          <MapPin size={14} color="#6ee7b7" />
           <div>
             <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 11 }}>To</p>
             <p style={{ margin: 0 }}>{order.deliveryAddress}</p>
@@ -103,24 +135,48 @@ export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }:
 
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
           <div>
-            <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 11 }}>Order Total</p>
-            <p style={{ margin: 0, fontWeight: 600 }}>Rs {order.itemTotal.toFixed(2)}</p>
+            <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 11 }}>
+              Order Total
+            </p>
+            <p style={{ margin: 0, fontWeight: 600 }}>
+              Rs {order.itemTotal.toFixed(2)}
+            </p>
           </div>
+
           <div style={{ textAlign: 'right' }}>
             <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: 11 }}>Items</p>
-            <p style={{ margin: 0, fontWeight: 600 }}>{order.items.length} items</p>
+            <p style={{ margin: 0, fontWeight: 600 }}>
+              {order.items.length} items
+            </p>
           </div>
         </div>
       </div>
 
       {/* Items List */}
-      {isExpanded && (
-        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(6, 182, 212, 0.1)' }}>
-          <p style={{ margin: '0 0 8px 0', fontSize: 12, color: 'var(--text-dim)', fontWeight: 600 }}>Items:</p>
+      {isExpanded && !hasSubmittedOffer && (
+        <div
+          style={{
+            marginTop: 12,
+            paddingTop: 12,
+            borderTop: '1px solid rgba(6, 182, 212, 0.1)',
+          }}
+        >
+          <p
+            style={{
+              margin: '0 0 8px 0',
+              fontSize: 12,
+              color: 'var(--text-dim)',
+              fontWeight: 600,
+            }}
+          >
+            Items:
+          </p>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {order.items.map((item, idx) => (
               <div key={idx} style={{ fontSize: 12, color: 'var(--text-dim)' }}>
-                • {item.productName} × {item.quantity} @ Rs {item.unitPrice.toFixed(2)} each
+                • {item.productName} × {item.quantity} @ Rs{' '}
+                {item.unitPrice.toFixed(2)} each
               </div>
             ))}
           </div>
@@ -129,7 +185,15 @@ export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }:
 
       {/* Offer Form */}
       {isExpanded && !hasSubmittedOffer && (
-        <form onSubmit={handleSubmitOffer} style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(6, 182, 212, 0.1)' }}>
+        <form
+          onSubmit={handleSubmitOffer}
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            marginTop: 16,
+            paddingTop: 16,
+            borderTop: '1px solid rgba(6, 182, 212, 0.1)',
+          }}
+        >
           {error && (
             <div
               style={{
@@ -152,17 +216,29 @@ export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }:
 
           <div style={{ display: 'grid', gap: 10 }}>
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-dim)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <label
+                style={{
+                  fontSize: 12,
+                  color: 'var(--text-dim)',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  marginBottom: 4,
+                }}
+              >
                 <DollarSign size={14} /> Delivery Fee (Rs)
               </label>
+
               <input
-                type='number'
-                step='0.01'
-                min='0.01'
-                placeholder='Enter your delivery fee'
+                type="number"
+                step="0.01"
+                min="0.01"
+                placeholder="Enter your delivery fee"
                 value={deliveryFee}
+                onClick={(e) => e.stopPropagation()}
                 onChange={(e) => setDeliveryFee(e.target.value)}
-                className='input'
+                className="input"
                 style={{ background: 'rgba(255, 255, 255, 0.02)' }}
                 required
                 disabled={isSubmitting}
@@ -170,16 +246,28 @@ export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }:
             </div>
 
             <div>
-              <label style={{ fontSize: 12, color: 'var(--text-dim)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <label
+                style={{
+                  fontSize: 12,
+                  color: 'var(--text-dim)',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  marginBottom: 4,
+                }}
+              >
                 <Clock size={14} /> Estimated Time (minutes)
               </label>
+
               <input
-                type='number'
-                min='1'
-                placeholder='e.g. 25'
+                type="number"
+                min="1"
+                placeholder="e.g. 25"
                 value={estimatedMinutes}
+                onClick={(e) => e.stopPropagation()}
                 onChange={(e) => setEstimatedMinutes(e.target.value)}
-                className='input'
+                className="input"
                 style={{ background: 'rgba(255, 255, 255, 0.02)' }}
                 disabled={isSubmitting}
               />
@@ -187,20 +275,26 @@ export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }:
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <button
-                type='button'
-                onClick={() => setIsExpanded(false)}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(false);
+                }}
                 disabled={isSubmitting}
-                className='btn'
+                className="btn"
                 style={{ background: '#374151', color: '#cbd5e1' }}
               >
                 Cancel
               </button>
+
               <button
-                type='submit'
+                type="submit"
                 disabled={isSubmitting}
-                className='btn'
+                className="btn"
                 style={{
-                  background: isSubmitting ? '#4b5563' : 'linear-gradient(135deg,#6ee7b7,#06b6d4)',
+                  background: isSubmitting
+                    ? '#4b5563'
+                    : 'linear-gradient(135deg,#6ee7b7,#06b6d4)',
                   color: isSubmitting ? '#9ca3af' : '#0d0d0d',
                   fontWeight: 700,
                 }}
@@ -214,9 +308,21 @@ export const PendingOrderCard = ({ order, onOfferSubmitted, submittedOfferFee }:
 
       {/* Submitted Offer Info */}
       {hasSubmittedOffer && (
-        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(6, 182, 212, 0.1)', background: 'rgba(110, 231, 183, 0.08)', padding: 10, borderRadius: 6 }}>
-          <p style={{ margin: 0, fontSize: 12, color: '#6ee7b7', fontWeight: 600 }}>Your Offer: Rs {submittedOfferFee.toFixed(2)}</p>
-          <p style={{ margin: '4px 0 0 0', fontSize: 11, color: 'var(--text-dim)' }}>Waiting for customer selection...</p>
+        <div
+          style={{
+            marginTop: 12,
+            padding: 10,
+            borderTop: '1px solid rgba(6, 182, 212, 0.1)',
+            background: 'rgba(110, 231, 183, 0.08)',
+            borderRadius: 6,
+          }}
+        >
+          <p style={{ margin: 0, fontSize: 12, color: '#6ee7b7', fontWeight: 600 }}>
+            Your Offer: Rs {Number(finalSubmittedFee).toFixed(2)}
+          </p>
+          <p style={{ margin: '4px 0 0 0', fontSize: 11, color: 'var(--text-dim)' }}>
+            Waiting for customer selection...
+          </p>
         </div>
       )}
     </div>

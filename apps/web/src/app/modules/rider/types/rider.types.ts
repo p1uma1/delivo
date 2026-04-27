@@ -67,7 +67,7 @@ export interface RiderDashboardData {
   name: string;
   zone: string;
   isOnline: boolean;
-  currentDelivery: RiderCurrentDelivery;
+  currentDelivery: RiderCurrentDelivery | null;
   todayStats: RiderTodayStat[];
   recentDeliveries: RiderRecentDelivery[];
   pendingOrders?: PendingOrder[];

@@ -281,6 +281,11 @@ CREATE TABLE cart_items (
     CONSTRAINT unique_cart_product UNIQUE (cart_id, product_id)
 );
 
+ALTER TABLE products
+ADD COLUMN image_url TEXT;
+
+ALTER TABLE merchant_profiles
+ADD COLUMN logo_url TEXT;
 ## Redis Usage
 
 Use Redis only for temporary fast state.
