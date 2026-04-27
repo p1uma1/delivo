@@ -1,5 +1,8 @@
 import amqplib, { Connection, Channel, ConsumeMessage } from 'amqplib';
 import { createLogger } from '../logger';
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '../../../../../.env') });
 
 const logger = createLogger('rabbitmq-client');
 
@@ -28,7 +31,7 @@ export async function connectRabbitMQ(retries = 10): Promise<RabbitMQClient> {
       // Declare the main topic exchange
       await channel.assertExchange(EXCHANGE, 'topic', { durable: true });
 
-      connection.on('error', (err) => {
+      connection.on('error', (err: { message: any; }) => {
         logger.error('RabbitMQ connection error', { error: err.message });
         client = null;
         setTimeout(() => connectRabbitMQ(), RECONNECT_DELAY);

@@ -7,6 +7,28 @@ const router = Router();
 // Apply auth middleware to all delivery routes
 router.use(authenticateToken);
 
+// ─── Delivery Offer Routes ────────────────────────────────────────────────────
+// POST /deliveries/offers - Riders submit delivery offers
+router.post('/offers', authorizeRole('rider'), (req, res, next) =>
+  deliveryController.submitOffer(req, res, next)
+);
+
+// GET /deliveries/offers/:orderId - Get all offers for an order
+router.get('/offers/:orderId', (req, res, next) =>
+  deliveryController.getOrderOffers(req, res, next)
+);
+
+// GET /deliveries/rider/available-orders - Riders get available orders to bid on
+router.get('/rider/available-orders', authorizeRole('rider'), (req, res, next) =>
+  deliveryController.getAvailableOrders(req, res, next)
+);
+
+// GET /deliveries/rider/my-offers - Riders get their submitted offers
+router.get('/rider/my-offers', authorizeRole('rider'), (req, res, next) =>
+  deliveryController.getMyOffers(req, res, next)
+);
+
+// ─── Delivery Management Routes ───────────────────────────────────────────────
 // POST /deliveries/assign - Admin only
 router.post('/assign', authorizeRole('admin'), (req, res, next) =>
   deliveryController.assignRider(req, res, next)

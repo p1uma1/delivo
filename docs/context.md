@@ -259,6 +259,33 @@ Fields:
 - merchant_rating
 - created_at
 
+CREATE TABLE carts (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    customer_id uuid NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    status varchar(30) NOT NULL DEFAULT 'active',
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE cart_items (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    cart_id uuid NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
+    product_id uuid NOT NULL REFERENCES products(id),
+    merchant_id uuid NOT NULL REFERENCES users(id),
+    quantity integer NOT NULL DEFAULT 1 CHECK (quantity > 0),
+    unit_price numeric(10,2) NOT NULL,
+    product_name varchar(255) NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+
+    CONSTRAINT unique_cart_product UNIQUE (cart_id, product_id)
+);
+
+ALTER TABLE products
+ADD COLUMN image_url TEXT;
+
+ALTER TABLE merchant_profiles
+ADD COLUMN logo_url TEXT;
 ## Redis Usage
 
 Use Redis only for temporary fast state.

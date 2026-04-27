@@ -1,4 +1,5 @@
 import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
+import crypto from 'node:crypto';
 import { UnauthorizedError } from '../errors';
 
 export interface TokenPayload {
@@ -26,6 +27,7 @@ export function signRefreshToken(payload: Pick<TokenPayload, 'userId'>): string 
 
   const options: SignOptions = {
     expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN as SignOptions['expiresIn']) || '7d',
+    jwtid: crypto.randomUUID(),
   };
 
   return jwt.sign(payload, secret, options);

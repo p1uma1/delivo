@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
+
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -7,7 +11,7 @@ import { initDeliverySubscribers } from './events/subscribers';
 
 const logger = createLogger('delivery-service');
 const app = express();
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.DELIVERY_SERVICE_PORT || 3007;
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(helmet());

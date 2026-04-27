@@ -1,21 +1,22 @@
 import { useState } from "react";
 import { useAdminDashboard } from "../hooks/useAdminDashboard";
 import { RecentOrder, AdminUser } from "../types/admin.types";
+import { Users, Package, DollarSign, Bike, LayoutGrid, Store, BarChart2, Settings, Menu, Bell, AlertTriangle, UserPlus } from "lucide-react";
 
 // Fallback data for when API is not ready
 const fallbackStats = [
-  { label: "Total Users", value: "12,482", change: "+8.2%", icon: "👥", color: "#6ee7b7" },
-  { label: "Active Orders", value: "3,291", change: "+12.5%", icon: "📦", color: "#93c5fd" },
-  { label: "Revenue Today", value: "$48,320", change: "+5.1%", icon: "💰", color: "#fde68a" },
-  { label: "Active Riders", value: "284", change: "-2.3%", icon: "🛵", color: "#f9a8d4" },
+  { label: "Total Users", value: "12,482", change: "+8.2%", icon: "users", color: "#6ee7b7" },
+  { label: "Active Orders", value: "3,291", change: "+12.5%", icon: "orders", color: "#93c5fd" },
+  { label: "Revenue Today", value: "Rs 48,320", change: "+5.1%", icon: "revenue", color: "#fde68a" },
+  { label: "Active Riders", value: "284", change: "-2.3%", icon: "riders", color: "#f9a8d4" },
 ];
 
 const fallbackRecentOrders: RecentOrder[] = [
-  { id: "#ORD-8821", customer: "Amara Silva", merchant: "Burger Bliss", status: "Delivered", amount: "$24.50", time: "2 min ago" },
-  { id: "#ORD-8820", customer: "Nimal Perera", merchant: "Pizza Palace", status: "In Transit", amount: "$38.00", time: "5 min ago" },
-  { id: "#ORD-8819", customer: "Dilani Fernando", merchant: "Sushi Stop", status: "Preparing", amount: "$52.75", time: "8 min ago" },
-  { id: "#ORD-8818", customer: "Kasun Jayawardena", merchant: "Spice Route", status: "Cancelled", amount: "$17.20", time: "12 min ago" },
-  { id: "#ORD-8817", customer: "Tharushi De Silva", merchant: "Green Bowl", status: "Delivered", amount: "$29.90", time: "18 min ago" },
+  { id: "#ORD-8821", customer: "Amara Silva", merchant: "Burger Bliss", status: "Delivered", amount: "Rs 24.50", time: "2 min ago" },
+  { id: "#ORD-8820", customer: "Nimal Perera", merchant: "Pizza Palace", status: "In Transit", amount: "Rs 38.00", time: "5 min ago" },
+  { id: "#ORD-8819", customer: "Dilani Fernando", merchant: "Sushi Stop", status: "Preparing", amount: "Rs 52.75", time: "8 min ago" },
+  { id: "#ORD-8818", customer: "Kasun Jayawardena", merchant: "Spice Route", status: "Cancelled", amount: "Rs 17.20", time: "12 min ago" },
+  { id: "#ORD-8817", customer: "Tharushi De Silva", merchant: "Green Bowl", status: "Delivered", amount: "Rs 29.90", time: "18 min ago" },
 ];
 
 const fallbackUsers: AdminUser[] = [
@@ -35,13 +36,13 @@ const statusColor: Record<string, string> = {
 };
 
 const navItems = [
-  { icon: "⊞", label: "Overview", id: "overview" },
-  { icon: "👥", label: "Users", id: "users" },
-  { icon: "📦", label: "Orders", id: "orders" },
-  { icon: "🏪", label: "Merchants", id: "merchants" },
-  { icon: "🛵", label: "Riders", id: "riders" },
-  { icon: "📊", label: "Analytics", id: "analytics" },
-  { icon: "⚙️", label: "Settings", id: "settings" },
+  { icon: LayoutGrid, label: "Overview", id: "overview" },
+  { icon: Users, label: "Users", id: "users" },
+  { icon: Package, label: "Orders", id: "orders" },
+  { icon: Store, label: "Merchants", id: "merchants" },
+  { icon: Bike, label: "Riders", id: "riders" },
+  { icon: BarChart2, label: "Analytics", id: "analytics" },
+  { icon: Settings, label: "Settings", id: "settings" },
 ];
 
 export const AdminDashboard: React.FC = () => {
@@ -70,8 +71,10 @@ export const AdminDashboard: React.FC = () => {
           <div style={{
             width: 36, height: 36, background: "linear-gradient(135deg,#6ee7b7,#3b82f6)",
             borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 18, flexShrink: 0
-          }}>📦</div>
+            color: "#0d0d0d", flexShrink: 0
+          }}>
+            <Package size={20} />
+          </div>
           {sidebarOpen && <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: 1 }}>DELIVO</span>}
         </div>
 
@@ -96,7 +99,7 @@ export const AdminDashboard: React.FC = () => {
               cursor: "pointer", fontSize: 14, fontWeight: active === item.id ? 600 : 400,
               textAlign: "left", transition: "all 0.15s"
             }}>
-              <span style={{ fontSize: 16, flexShrink: 0 }}>{item.icon}</span>
+              <item.icon size={18} strokeWidth={active === item.id ? 2.5 : 2} style={{ flexShrink: 0 }} />
               {sidebarOpen && <span>{item.label}</span>}
             </button>
           ))}
@@ -127,8 +130,10 @@ export const AdminDashboard: React.FC = () => {
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
               background: "#1f2937", border: "1px solid #374151", borderRadius: 8,
-              padding: "6px 10px", cursor: "pointer", color: "#9ca3af", fontSize: 16
-            }}>☰</button>
+              padding: "8px", cursor: "pointer", color: "#9ca3af", display: "grid", placeItems: "center"
+            }}>
+              <Menu size={18} />
+            </button>
             <div>
               <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Admin Dashboard</h1>
               <p style={{ margin: 0, fontSize: 12, color: "#6b7280" }}>Platform overview & management</p>
@@ -137,17 +142,23 @@ export const AdminDashboard: React.FC = () => {
           <div style={{ display: "flex", gap: 12 }}>
             {error && (
               <span style={{ color: "#fca5a5", fontSize: 12, marginRight: 8 }}>
-                ⚠️ {error}
+                <AlertTriangle size={14} style={{ marginRight: 6 }} /> {error}
               </span>
             )}
             <button style={{
               background: "#1f2937", border: "1px solid #374151", borderRadius: 8,
-              padding: "8px 14px", cursor: "pointer", color: "#9ca3af", fontSize: 13
-            }}>🔔 Alerts</button>
+              padding: "8px 14px", cursor: "pointer", color: "#9ca3af", fontSize: 13,
+              display: "flex", alignItems: "center", gap: 8
+            }}>
+              <Bell size={16} /> Alerts
+            </button>
             <button style={{
               background: "linear-gradient(135deg,#6ee7b7,#3b82f6)", border: "none", borderRadius: 8,
-              padding: "8px 16px", cursor: "pointer", color: "#0d0d0d", fontSize: 13, fontWeight: 700
-            }}>+ Add User</button>
+              padding: "8px 16px", cursor: "pointer", color: "#0d0d0d", fontSize: 13, fontWeight: 700,
+              display: "flex", alignItems: "center", gap: 8
+            }}>
+              <UserPlus size={16} /> Add User
+            </button>
           </div>
         </header>
 
@@ -155,22 +166,32 @@ export const AdminDashboard: React.FC = () => {
           {/* Stats */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 20, marginBottom: 32 }}>
             {stats.map(s => (
-              <div key={s.label} style={{
-                background: "#161616", border: "1px solid #222", borderRadius: 16, padding: "24px",
-                position: "relative", overflow: "hidden"
-              }}>
                 <div style={{
-                  position: "absolute", top: -20, right: -20, width: 80, height: 80,
-                  background: s.color, borderRadius: "50%", opacity: 0.08
-                }} />
-                <div style={{ fontSize: 28, marginBottom: 12 }}>{s.icon}</div>
-                <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 4 }}>{s.value}</div>
-                <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 8 }}>{s.label}</div>
-                <div style={{
-                  fontSize: 12, fontWeight: 600,
-                  color: s.change.startsWith("+") ? "#6ee7b7" : "#fca5a5"
-                }}>{s.change} this week</div>
-              </div>
+                  background: "#161616", border: "1px solid #222", borderRadius: 16, padding: "24px",
+                  position: "relative", overflow: "hidden"
+                }}>
+                  <div style={{
+                    position: "absolute", top: -20, right: -20, width: 80, height: 80,
+                    background: s.color, borderRadius: "50%", opacity: 0.08
+                  }} />
+                  <div style={{ color: s.color, marginBottom: 12 }}>
+                    {(() => {
+                      const Icon = {
+                        'users': Users,
+                        'orders': Package,
+                        'revenue': DollarSign,
+                        'riders': Bike
+                      }[s.icon] || LayoutGrid;
+                      return <Icon size={28} />;
+                    })()}
+                  </div>
+                  <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 4 }}>{s.value}</div>
+                  <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 8 }}>{s.label}</div>
+                  <div style={{
+                    fontSize: 12, fontWeight: 600,
+                    color: s.change.startsWith("+") ? "#6ee7b7" : "#fca5a5"
+                  }}>{s.change} this week</div>
+                </div>
             ))}
           </div>
 

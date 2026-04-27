@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { userRepository } from '../repositories/user.repository';
 import {
   RegisterInput,

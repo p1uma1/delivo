@@ -1,8 +1,6 @@
 # Docker Compose override for local development
 # Enables hot-reload and exposes internal service ports for direct access
 
-version: '3.9'
-
 services:
   api-gateway:
     build:
@@ -42,6 +40,16 @@ services:
       - ./backend/services/delivery-service/src:/app/backend/services/delivery-service/src
       - ./backend/packages/shared/src:/app/backend/packages/shared/src
 
+  product-service:
+    build:
+      target: dev
+    command: npm run dev
+    ports:
+      - "3004:3004"
+    volumes:
+      - ./backend/services/product-service/src:/app/backend/services/product-service/src
+      - ./backend/packages/shared/src:/app/backend/packages/shared/src
+
   notification-service:
     build:
       target: dev
@@ -50,10 +58,20 @@ services:
       - ./backend/services/notification-service/src:/app/backend/services/notification-service/src
       - ./backend/packages/shared/src:/app/backend/packages/shared/src
 
-  web-app:
+  cart-service:
     build:
       target: dev
     command: npm run dev
+    ports:
+      - "3005:3005"
+    volumes:
+      - ./backend/services/cart-service/src:/app/backend/services/cart-service/src
+      - ./backend/packages/shared/src:/app/backend/packages/shared/src
+
+  web-app:
+    build:
+      target: dev
+    command: npm run dev -- --host
     volumes:
       - ./apps/web/src:/app/apps/web/src
       - ./apps/web/public:/app/apps/web/public

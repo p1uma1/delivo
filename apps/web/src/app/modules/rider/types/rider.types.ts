@@ -29,11 +29,47 @@ export interface RiderRecentDelivery {
   rating: number;
 }
 
+export interface PendingOrder {
+  id: string;
+  customerId: string;
+  merchantName: string;
+  pickupAddress: string;
+  deliveryAddress: string;
+  itemTotal: number;
+  items: Array<{
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+  }>;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface DeliveryOffer {
+  id: string;
+  orderId: string;
+  riderId: string;
+  deliveryFee: number;
+  estimatedMinutes?: number;
+  status: | 'pending'
+  | 'waiting_for_rider_offers'
+  | 'rider_selected'
+  | 'accepted_by_merchant'
+  | 'preparing'
+  | 'ready_for_pickup'
+  | 'picked_up'
+  | 'delivered'
+  | 'cancelled';
+  createdAt: string;
+}
+
 export interface RiderDashboardData {
   name: string;
   zone: string;
   isOnline: boolean;
-  currentDelivery: RiderCurrentDelivery;
+  currentDelivery: RiderCurrentDelivery | null;
   todayStats: RiderTodayStat[];
   recentDeliveries: RiderRecentDelivery[];
+  pendingOrders?: PendingOrder[];
+  submittedOffers?: DeliveryOffer[];
 }

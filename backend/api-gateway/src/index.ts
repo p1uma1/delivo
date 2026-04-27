@@ -27,7 +27,9 @@ console.log('USER_SERVICE_URL:', process.env.USER_SERVICE_URL);
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user-service:3001';
 const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:3002';
 const DELIVERY_SERVICE_URL = process.env.DELIVERY_SERVICE_URL || 'http://delivery-service:3003';
-const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://localhost:5002';
+const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://product-service:3004';
+const CART_SERVICE_URL = process.env.CART_SERVICE_URL || 'http://cart-service:3005';
+const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://notification-service:3006';
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
 app.use(helmet());
@@ -112,15 +114,15 @@ app.use(
 );
 
 app.use(
-  '/api/products',
-  authenticateToken,
-  proxyOptions(PRODUCT_SERVICE_URL, '/products')
-);
-
-app.use(
   '/api/orders',
   authenticateToken,
   proxyOptions(ORDER_SERVICE_URL, '/orders')     //change according to path provided by backend
+);
+
+app.use(
+  '/api/cart',
+  authenticateToken,
+  proxyOptions(CART_SERVICE_URL, '/cart')
 );
 
 app.use(
@@ -129,6 +131,17 @@ app.use(
   proxyOptions(DELIVERY_SERVICE_URL, '/deliveries')  //change according to path provided by backend
 );
 
+app.use(
+  '/api/products',
+  authenticateToken,
+  proxyOptions(PRODUCT_SERVICE_URL, '/products')  //change according to path provided by backend
+);
+
+app.use(
+  '/api/deliveries',
+  authenticateToken,
+  proxyOptions(DELIVERY_SERVICE_URL, '/deliveries')  //change according to path provided by backend
+);
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((_req: Request, _res: Response, next: NextFunction) => {
   next(new NotFoundError('Route not found'));
@@ -142,6 +155,7 @@ app.listen(PORT, () => {
   logger.info(`API Gateway running on port ${PORT}`);
   logger.info(`Proxying: /api/auth, /api/users → ${USER_SERVICE_URL}`);
   logger.info(`Proxying: /api/orders → ${ORDER_SERVICE_URL}`);
+  logger.info(`Proxying: /api/cart → ${CART_SERVICE_URL}`);
   logger.info(`Proxying: /api/deliveries → ${DELIVERY_SERVICE_URL}`);
   logger.info(`Proxying: /api/products → ${PRODUCT_SERVICE_URL}`);
 });

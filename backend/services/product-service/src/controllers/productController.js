@@ -24,6 +24,16 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const getRecommended = async (req, res) => {
+  try {
+    const products = await productService.getAllProducts();
+    // Simple logic: just return the first 5 products for now
+    res.json(products.slice(0, 5));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const getProductById = async (req, res) => {
   try {
     const product = await productService.getProductById(req.params.id);
@@ -122,6 +132,25 @@ const getByMerchant = async (req, res) => {
   }
 };
 
+const getMyProducts = async (req, res) => {
+  try {
+    const merchantId = req.user.userId || req.user.id;
+    const products = await productService.getProductsByMerchant(merchantId);
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+const reserveStock = async (req, res) => {
+  try {
+    const { items } = req.body;
+    await productService.reserveStock(items);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createProduct,
   getAllProducts,
@@ -130,5 +159,8 @@ module.exports = {
   deleteProduct,
   searchProducts,
   getByCategory,
-  getByMerchant
+  getByMerchant,
+  getMyProducts,
+  getRecommended,
+  reserveStock
 };

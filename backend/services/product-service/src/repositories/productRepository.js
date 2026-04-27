@@ -1,27 +1,35 @@
 const pool = require("../db/db");
 
 const createProduct = async (data) => {
-  const { name, description, price, category, stock, merchant_id } = data;
+  const { name, description, price, category, stock, merchant_id, image_url } = data;
 
   const result = await pool.query(
     `INSERT INTO products 
-    (name, description, price, category, stock, merchant_id)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    (name, description, price, category, stock, merchant_id, image_url)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *`,
-    [name, description, price, category, stock, merchant_id]
+    [name, description, price, category, stock, merchant_id, image_url]
   );
 
   return result.rows[0];
 };
 
 const getAllProducts = async () => {
-  const result = await pool.query("SELECT * FROM products ORDER BY id DESC");
+  const result = await pool.query(`
+    SELECT p.*, mp.business_name as merchant_name 
+    FROM products p
+    LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+    ORDER BY p.id DESC
+  `);
   return result.rows;
 };
 
 const getProductById = async (id) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE id = $1",
+    `SELECT p.*, mp.business_name as merchant_name 
+     FROM products p
+     LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+     WHERE p.id = $1`,
     [id]
   );
 
@@ -69,7 +77,10 @@ const deleteProduct = async (id) => {
 
 const searchProducts = async (query) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE name ILIKE $1",
+    `SELECT p.*, mp.business_name as merchant_name 
+     FROM products p
+     LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+     WHERE p.name ILIKE $1`,
     [`%${query}%`]
   );
 
@@ -78,7 +89,10 @@ const searchProducts = async (query) => {
 
 const getProductsByCategory = async (category) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE category = $1 ORDER BY id DESC",
+    `SELECT p.*, mp.business_name as merchant_name 
+     FROM products p
+     LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+     WHERE p.category = $1 ORDER BY p.id DESC`,
     [category]
   );
 
@@ -87,11 +101,34 @@ const getProductsByCategory = async (category) => {
 
 const getProductsByMerchant = async (merchantId) => {
   const result = await pool.query(
-    "SELECT * FROM products WHERE merchant_id = $1 ORDER BY id DESC",
+    `SELECT p.*, mp.business_name as merchant_name 
+     FROM products p
+     LEFT JOIN merchant_profiles mp ON p.merchant_id = mp.user_id
+     WHERE p.merchant_id = $1 ORDER BY p.id DESC`,
     [merchantId]
   );
 
   return result.rows;
+};
+
+const reduceStock = async (id, quantity) => {
+  // Use a single query with a WHERE clause to ensure stock is sufficient
+  const result = await pool.query(
+    `UPDATE products 
+     SET stock = stock - $2
+     WHERE id = $1 AND stock >= $2
+     RETURNING *`,
+    [id, quantity]
+  );
+
+  if (result.rowCount === 0) {
+    // Check if product exists to provide a better error message
+    const product = await pool.query("SELECT stock FROM products WHERE id = $1", [id]);
+    if (product.rowCount === 0) throw new Error(`Product ${id} not found`);
+    throw new Error(`Insufficient stock for product ${id}. Available: ${product.rows[0].stock}, Requested: ${quantity}`);
+  }
+
+  return result.rows[0];
 };
 
 module.exports = {
@@ -102,5 +139,6 @@ module.exports = {
   deleteProduct,
   searchProducts,
   getProductsByCategory,
-  getProductsByMerchant
+  getProductsByMerchant,
+  reduceStock
 };
