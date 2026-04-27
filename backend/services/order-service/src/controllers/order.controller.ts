@@ -173,6 +173,33 @@ export class OrderController {
       next(err);
     }
   }
+  async pending(req: Request, res: Response) {
+    const data = await orderService.getPendingOrders();
+    res.json(data);
+  }
+
+  async bid(req: Request, res: Response) {
+    const rider = req.user as any;
+
+    const result = await orderService.submitBid({
+      orderId: req.body.orderId,
+      riderId: rider.userId,
+      riderName: rider.name,
+      bidPrice: req.body.bidPrice
+    });
+
+    res.json(result);
+  }
+
+  async bids(req: Request, res: Response) {
+    const data = await orderService.getOrderBids(req.params.id);
+    res.json(data);
+  }
+
+  async select(req: Request, res: Response) {
+    const data = await orderService.selectRider(req.body.bidId);
+    res.json(data);
+  }
 }
 
 export const orderController = new OrderController();

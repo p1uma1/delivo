@@ -1,4 +1,5 @@
 import { orderRepository, OrderStatus } from '../repositories/order.repository';
+import { bidRepository } from '../repositories/bid.repository';
 import { publishEvent, NotFoundError, ValidationError } from '@delivo/shared';
 
 interface CreateOrderInput {
@@ -45,14 +46,18 @@ export class OrderService {
     });
 
     // Publish event
-    await publishEvent('order.created', {
-      orderId: order.id,
-      customerId: order.customerId,
-      pickupAddress: order.pickupAddress,
-      deliveryAddress: order.deliveryAddress,
-      totalAmount: order.totalAmount,
-      items: order.items,
-    });
+    try {
+      await publishEvent('order.created', {
+        orderId: order.id,
+        customerId: order.customerId,
+        pickupAddress: order.pickupAddress,
+        deliveryAddress: order.deliveryAddress,
+        totalAmount: order.totalAmount,
+        items: order.items,
+      });
+    } catch (error) {
+      console.log('RabbitMQ unavailable. Event skipped.');
+    }
 
     return order;
   }
@@ -94,6 +99,32 @@ export class OrderService {
     if (!order) throw new NotFoundError('Order not found');
 
     return orderRepository.updateStatus(orderId, status);
+  }
+
+  async getPendingOrders() {
+    return (await orderRepository.findByCustomerId('')).filter(
+      (o: any) => o.status === 'PENDING'
+    );
+  }
+
+  async submitBid(data: any) {
+    return bidRepository.create(data);
+  }
+
+  async getOrderBids(orderId: string) {
+    return bidRepository.findByOrderId(orderId);
+  }
+
+  async selectRider(bidId: string) {
+    const bid = await bidRepository.findById(bidId);
+    if (!bid) throw new Error('Bid not found');
+
+    await bidRepository.updateStatus(bidId, 'ACCEPTED');
+    await bidRepository.rejectOthers(bid.orderId, bidId);
+
+    await orderRepository.assignRider(bid.orderId, bid.riderId);
+
+    return { message: 'Rider assigned successfully' };
   }
 }
 

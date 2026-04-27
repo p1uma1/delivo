@@ -27,6 +27,7 @@ export interface Order {
   eta?: string;
   riderName?: string;
   riderPhone?: string;
+  selectedRiderId?: string;
 }
 
 // In-memory store
@@ -66,6 +67,17 @@ export class OrderRepository {
     orders[index] = { ...orders[index], status, updatedAt: new Date() };
     return orders[index];
   }
+
+  async assignRider(orderId: string, riderId: string): Promise<Order> {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) throw new Error('Order not found');
+
+    order.selectedRiderId = riderId;
+    order.status = 'ASSIGNED';
+    order.updatedAt = new Date();
+
+    return order;
+}
 }
 
 export const orderRepository = new OrderRepository();

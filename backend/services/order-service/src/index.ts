@@ -32,17 +32,32 @@ app.use(globalErrorHandler);
 // ─── Initialization ───────────────────────────────────────────────────────────
 async function start() {
   try {
-    // Connect to RabbitMQ
-    await connectRabbitMQ();
+    let rabbitConnected = false;
 
-    // Initialize event subscribers
-    await initOrderSubscribers();
+    try {
+      await connectRabbitMQ();
+      rabbitConnected = true;
+      console.log("✅ RabbitMQ connected");
+    } catch (error) {
+      console.log("⚠ RabbitMQ unavailable - skipped for local development");
+    }
+
+    // Only initialize subscribers if RabbitMQ works
+    if (rabbitConnected) {
+      await initOrderSubscribers();
+      console.log("✅ Subscribers initialized");
+    } else {
+      console.log("⚠ Subscribers skipped");
+    }
 
     app.listen(PORT, () => {
       logger.info(`Order Service running on port ${PORT}`);
     });
+
   } catch (err) {
-    logger.error('Failed to start Order Service', { error: (err as Error).message });
+    logger.error('Failed to start Order Service', {
+      error: (err as Error).message
+    });
     process.exit(1);
   }
 }

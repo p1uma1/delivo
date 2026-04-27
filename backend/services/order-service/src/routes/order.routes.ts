@@ -28,4 +28,20 @@ router.get('/:id/offers', (req, res, next) => orderController.getOrderOffers(req
 // POST /orders/:id/select-offer - select a rider offer
 router.post('/:id/select-offer', (req, res, next) => orderController.selectOffer(req, res, next));
 
+router.get('/pending', authenticateToken, (req, res) =>
+  orderController.pending(req, res)
+);
+
+router.post('/bid', authenticateToken, (req, res) =>
+  orderController.bid(req, res)
+);
+
+router.get('/:id/bids', authenticateToken, (req, res) =>
+  orderController.bids(req, res)
+);
+
+router.post('/select-rider', authenticateToken, (req, res) =>
+  orderController.select(req, res)
+);
+
 export default router;

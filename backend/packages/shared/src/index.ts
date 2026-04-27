@@ -22,7 +22,7 @@ export {
 } from './auth/jwt';
 
 // ─── Messaging ────────────────────────────────────────────────────────────────
-// export { connectRabbitMQ, publishEvent, subscribeEvent } from './messaging/rabbitMQ';
+export { connectRabbitMQ, publishEvent, subscribeEvent } from './messaging/rabbitMQ';
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 export { authenticateToken, authorizeRole } from './middleware/auth';
