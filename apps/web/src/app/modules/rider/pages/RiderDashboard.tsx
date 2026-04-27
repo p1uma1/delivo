@@ -59,9 +59,6 @@ export const RiderDashboard = () => {
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: data.isOnline ? '#052e16' : '#94a3b8' }} />
             {data.isOnline ? 'Online' : 'Offline'}
           </button>
-          <button className="btn" style={{ background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Bell size={16} /> {unreadCount} Notifications
-          </button>
         </div>
       </div>
 

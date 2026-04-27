@@ -2,7 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { globalErrorHandler, NotFoundError } from '@delivo/shared';
+import { globalErrorHandler, NotFoundError, connectRabbitMQ } from '@delivo/shared';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 
@@ -30,10 +30,22 @@ app.use((_req, _res, next) => {
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use(globalErrorHandler);
 
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`User Service running on port ${PORT}`);
-  });
+// ─── Initialization ───────────────────────────────────────────────────────────
+async function start() {
+  try {
+    if (process.env.NODE_ENV !== 'test') {
+      // Connect to RabbitMQ before accepting connections
+      await connectRabbitMQ();
+      app.listen(PORT, () => {
+        console.log(`User Service running on port ${PORT}`);
+      });
+    }
+  } catch (err) {
+    console.error('Failed to start User Service', err);
+    process.exit(1);
+  }
 }
+
+start();
 
 export default app;

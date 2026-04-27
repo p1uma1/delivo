@@ -109,54 +109,69 @@ export const CustomerDashboard = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, opacity: loading ? 0.75 : 1 }}>
         <div className="card" style={{ display: 'grid', gap: 16 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-            <div>
-              <h3 style={{ marginBottom: 4 }}>Live Order</h3>
-              <div style={{ color: '#a5b4fc', fontWeight: 600, fontSize: 13 }}>{data.activeOrder.id} · {data.activeOrder.merchant}</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{data.activeOrder.eta}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>estimated arrival</div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-            {steps.map((step, index) => {
-              const isDone = index < data.activeOrder.status;
-              const isCurrent = index === data.activeOrder.status;
-              return (
-                <div key={step} style={{ display: 'flex', alignItems: 'center', flex: '1 1 90px', minWidth: 90 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
-                    <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid', borderColor: isDone || isCurrent ? '#a5b4fc' : '#374151', background: isDone ? '#a5b4fc' : isCurrent ? '#1a0d1f' : 'transparent', display: 'grid', placeItems: 'center', fontSize: 12, color: isDone ? '#0d0d0d' : isCurrent ? '#a5b4fc' : '#6b7280' }}>
-                      {isDone ? '✓' : index + 1}
-                    </div>
-                    <div style={{ fontSize: 9, color: isDone || isCurrent ? '#a5b4fc' : '#6b7280', fontWeight: 700, textAlign: 'center' }}>{step}</div>
-                  </div>
-                  {index < steps.length - 1 && <div style={{ flex: 1, height: 2, margin: '0 6px', background: isDone ? '#a5b4fc' : '#374151' }} />}
+          {data.activeOrder.id ? (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+                <div>
+                  <h3 style={{ marginBottom: 4 }}>Live Order</h3>
+                  <div style={{ color: '#a5b4fc', fontWeight: 600, fontSize: 13 }}>{data.activeOrder.id} · {data.activeOrder.merchant}</div>
                 </div>
-              );
-            })}
-          </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 22, fontWeight: 800 }}>{data.activeOrder.eta}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>estimated arrival</div>
+                </div>
+              </div>
 
-          <div style={{ background: '#1f2937', borderRadius: 10, padding: '14px 16px' }}>
-            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 6 }}>YOUR ITEMS</div>
-            {data.activeOrder.items.map((item) => (
-              <div key={item} style={{ fontSize: 13, color: '#cbd5e1', marginBottom: 2 }}>• {item}</div>
-            ))}
-            <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #374151', display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 13, fontWeight: 700 }}>Total</span>
-              <span style={{ fontSize: 15, fontWeight: 800, color: '#a5b4fc' }}>{data.activeOrder.total}</span>
+              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                {steps.map((step, index) => {
+                  const isDone = index < data.activeOrder.status;
+                  const isCurrent = index === data.activeOrder.status;
+                  return (
+                    <div key={step} style={{ display: 'flex', alignItems: 'center', flex: '1 1 90px', minWidth: 90 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid', borderColor: isDone || isCurrent ? '#a5b4fc' : '#374151', background: isDone ? '#a5b4fc' : isCurrent ? '#1a0d1f' : 'transparent', display: 'grid', placeItems: 'center', fontSize: 12, color: isDone ? '#0d0d0d' : isCurrent ? '#a5b4fc' : '#6b7280' }}>
+                          {isDone ? '✓' : index + 1}
+                        </div>
+                        <div style={{ fontSize: 9, color: isDone || isCurrent ? '#a5b4fc' : '#6b7280', fontWeight: 700, textAlign: 'center' }}>{step}</div>
+                      </div>
+                      {index < steps.length - 1 && <div style={{ flex: 1, height: 2, margin: '0 6px', background: isDone ? '#a5b4fc' : '#374151' }} />}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ background: '#1f2937', borderRadius: 10, padding: '14px 16px' }}>
+                <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 6 }}>YOUR ITEMS</div>
+                {data.activeOrder.items.map((item) => (
+                  <div key={item} style={{ fontSize: 13, color: '#cbd5e1', marginBottom: 2 }}>• {item}</div>
+                ))}
+                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #374151', display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 13, fontWeight: 700 }}>Total</span>
+                  <span style={{ fontSize: 15, fontWeight: 800, color: '#a5b4fc' }}>{data.activeOrder.total}</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <button className="btn" style={{ flex: 1, minWidth: 140, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
+                  <Phone size={14} /> Call Rider
+                </button>
+                <button className="btn" style={{ flex: 1, minWidth: 140, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
+                  <MessageCircle size={14} /> Chat
+                </button>
+              </div>
+            </>
+          ) : (
+            <div style={{ padding: '40px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <div style={{ width: 64, height: 64, background: '#1f2937', borderRadius: '50%', display: 'grid', placeItems: 'center', marginBottom: 16 }}>
+                <Utensils size={28} color="#a5b4fc" />
+              </div>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: 18 }}>No active orders</h3>
+              <p style={{ color: 'var(--text-dim)', fontSize: 14, margin: '0 0 24px 0', maxWidth: 240 }}>You don't have any food on the way right now.</p>
+              <button className="btn btn-primary" onClick={() => navigate('/products')} style={{ width: '100%', maxWidth: 200 }}>
+                Order Now
+              </button>
             </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <button className="btn" style={{ flex: 1, minWidth: 140, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
-              <Phone size={14} /> Call Rider
-            </button>
-            <button className="btn" style={{ flex: 1, minWidth: 140, background: '#1f2937', color: '#cbd5e1', border: '1px solid #374151' }}>
-              <MessageCircle size={14} /> Chat
-            </button>
-          </div>
+          )}
         </div>
 
         <div className="card" style={{ display: 'grid', gap: 8, alignContent: 'start' }}>
