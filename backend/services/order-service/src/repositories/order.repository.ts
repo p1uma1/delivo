@@ -1,7 +1,15 @@
 import { query } from '../lib/db';
 import { randomUUID } from 'crypto';
 
-export type OrderStatus = 'PENDING' | 'WAITING_FOR_RIDER_OFFERS' | 'RIDER_SELECTED' | 'ACCEPTED_BY_MERCHANT' | 'PREPARING' | 'READY_FOR_PICKUP' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED' | 'ASSIGNED';
+export type OrderStatus = | 'pending'
+  | 'waiting_for_rider_offers'
+  | 'rider_selected'
+  | 'accepted_by_merchant'
+  | 'preparing'
+  | 'ready_for_pickup'
+  | 'picked_up'
+  | 'delivered'
+  | 'cancelled';
 
 export interface OrderItem {
   id: string;
@@ -34,7 +42,7 @@ export class OrderRepository {
       `SELECT o.*, mp.business_name as merchant_name 
        FROM orders o
        LEFT JOIN merchant_profiles mp ON o.merchant_id = mp.user_id
-       WHERE o.id = $1`, 
+       WHERE o.id = $1`,
       [id]
     );
     if (res.rows.length === 0) return null;
@@ -52,10 +60,33 @@ export class OrderRepository {
        FROM orders o
        LEFT JOIN merchant_profiles mp ON o.merchant_id = mp.user_id
        WHERE o.customer_id = $1 
-       ORDER BY o.created_at DESC`, 
+       ORDER BY o.created_at DESC`,
       [customerId]
     );
     return res.rows.map(this.mapToOrder);
+  }
+
+  async findByStatus(status: OrderStatus): Promise<Order[]> {
+    const res = await query(
+      `SELECT o.*, mp.business_name as merchant_name 
+       FROM orders o
+       LEFT JOIN merchant_profiles mp ON o.merchant_id = mp.user_id
+       WHERE o.status = $1 
+       ORDER BY o.created_at DESC`,
+      [status]
+    );
+
+    // Fetch items for each order
+    const ordersWithItems = await Promise.all(
+      res.rows.map(async (orderRow) => {
+        const order = this.mapToOrder(orderRow);
+        const itemsRes = await query('SELECT * FROM order_items WHERE order_id = $1', [order.id]);
+        order.items = itemsRes.rows.map(this.mapToOrderItem);
+        return order;
+      })
+    );
+
+    return ordersWithItems;
   }
 
   async create(data: any): Promise<Order> {

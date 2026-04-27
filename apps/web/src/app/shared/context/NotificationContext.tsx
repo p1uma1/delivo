@@ -24,13 +24,18 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [socket, setSocket] = useState<Socket | null>(null);
 
   // Get user ID from local storage or wherever it is stored
-  const userId = localStorage.getItem('user_id') || 'temp_user';
+  const user: string | null = localStorage.getItem('user');
+  const userId = user ? JSON.parse(user).id : null;
 
   useEffect(() => {
     const NOTIFICATION_URL = import.meta.env.VITE_NOTIFICATION_SOCKET_URL || 'http://localhost:3006';
 
+    const userObj = user ? JSON.parse(user) : null;
+    const currentUserId = userId || userObj?.id || userObj?.userId;
+    const userRole = userObj?.role;
+
     const newSocket = io(NOTIFICATION_URL, {
-      query: { userId }
+      query: { userId: currentUserId }
     });
 
     setSocket(newSocket);
@@ -39,10 +44,16 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setNotifications(prev => [notif, ...prev]);
     });
 
+    if (userRole === 'rider') {
+      newSocket.on('rider:new-order', (notif: Notification) => {
+        setNotifications(prev => [notif, ...prev]);
+      });
+    }
+
     return () => {
       newSocket.close();
     };
-  }, [userId]);
+  }, [userId, user]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 

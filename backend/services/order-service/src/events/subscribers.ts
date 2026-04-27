@@ -10,8 +10,8 @@ export async function initOrderSubscribers() {
     'order-service.delivery-assigned',
     'delivery.assigned',
     async (payload) => {
-      logger.info(`Updating order ${payload.orderId} to ASSIGNED`);
-      await orderService.updateOrderStatus(payload.orderId, 'ASSIGNED');
+      logger.info(`Updating order ${payload.orderId} to rider selected`);
+      await orderService.updateOrderStatus(payload.orderId, 'rider_selected');
     }
   );
 
@@ -20,8 +20,8 @@ export async function initOrderSubscribers() {
     'order-service.delivery-completed',
     'delivery.completed',
     async (payload) => {
-      logger.info(`Updating order ${payload.orderId} to DELIVERED`);
-      await orderService.updateOrderStatus(payload.orderId, 'DELIVERED');
+      logger.info(`Updating order ${payload.orderId} to delivered`);
+      await orderService.updateOrderStatus(payload.orderId, 'delivered');
     }
   );
 }

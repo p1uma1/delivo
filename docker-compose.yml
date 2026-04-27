@@ -1,5 +1,3 @@
-version: '3.9'
-
 networks:
   delivo-network:
     driver: bridge
@@ -16,13 +14,13 @@ services:
     restart: unless-stopped
     ports:
       - "5672:5672"
-      - "15672:15672"    # Management UI
+      - "15672:15672" # Management UI
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - delivo-network
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -92,12 +90,29 @@ services:
     networks:
       - delivo-network
 
+  product-service:
+    build:
+      context: .
+      dockerfile: backend/services/product-service/Dockerfile
+    container_name: delivo-product-service
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3004
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - delivo-network
+
   notification-service:
     build:
       context: .
       dockerfile: backend/services/notification-service/Dockerfile
     container_name: delivo-notification-service
     restart: unless-stopped
+    ports:
+      - "${NOTIFICATION_SOCKET_PORT:-3006}:3006"
     env_file: .env
     depends_on:
       rabbitmq:
@@ -128,6 +143,8 @@ services:
     ports:
       - "5173:5173"
     env_file: .env
+    environment:
+      VITE_API_URL: http://api-gateway:3000
     depends_on:
       - api-gateway
     networks:

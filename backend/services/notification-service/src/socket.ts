@@ -65,3 +65,13 @@ export function sendNotificationToUser(userId: string, event: string, data: any)
     logger.debug(`User ${userId} not connected via socket, skipping real-time notification`);
   }
 }
+
+export function broadcastNotification(event: string, data: any) {
+  if (!io) {
+    logger.error('Socket server not initialized');
+    return;
+  }
+
+  logger.info(`Broadcasting ${event} to all connected users`);
+  io.emit(event, data);
+}

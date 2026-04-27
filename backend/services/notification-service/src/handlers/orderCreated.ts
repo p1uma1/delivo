@@ -1,6 +1,6 @@
 import { sendEmail } from '../channels/email';
-import { createLogger } from '@delivo/shared';
-import { sendNotificationToUser } from '../socket';
+import { createLogger, subscribeEvent } from '@delivo/shared';
+import { sendNotificationToUser, broadcastNotification } from '../socket';
 
 const logger = createLogger('notification-service:handlers');
 
@@ -33,4 +33,14 @@ export async function handleOrderCreated(payload: any) {
       timestamp: new Date().toISOString()
     });
   }
+
+  // Notify all online riders about new order
+  broadcastNotification('rider:new-order', {
+    id: `rider_${Date.now()}`,
+    title: '📦 New Order Available!',
+    message: `A new delivery order is available for bidding. Check your dashboard!`,
+    orderId: payload.orderId,
+    type: 'info',
+    timestamp: new Date().toISOString()
+  });
 }
