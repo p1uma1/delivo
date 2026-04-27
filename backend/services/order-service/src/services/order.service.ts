@@ -83,6 +83,11 @@ export class OrderService {
     return orderRepository.findByCustomerId(customerId);
   }
 
+  async getPendingOrders() {
+    // Fetch orders that are in PENDING status (waiting for rider offers)
+    return orderRepository.findByStatus('pending');
+  }
+
   async cancelOrder(orderId: string, userId: string) {
     const order = await orderRepository.findById(orderId);
     if (!order) throw new NotFoundError('Order not found');
@@ -91,11 +96,11 @@ export class OrderService {
       throw new ValidationError('You can only cancel your own orders');
     }
 
-    if (order.status !== 'PENDING') {
+    if (order.status !== 'pending') {
       throw new ValidationError(`Cannot cancel order in ${order.status} status`);
     }
 
-    const updatedOrder = await orderRepository.updateStatus(orderId, 'CANCELLED');
+    const updatedOrder = await orderRepository.updateStatus(orderId, 'cancelled');
 
     await publishEvent('order.cancelled', {
       orderId: order.id,

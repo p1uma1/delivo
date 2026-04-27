@@ -109,39 +109,36 @@ export class OrderController {
     }
   }
 
+  async getPendingOrders(req: Request, res: Response, next: NextFunction) {
+    try {
+      const orders = await orderService.getPendingOrders();
+      res.json({ success: true, data: orders });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async getOrderOffers(req: Request, res: Response, next: NextFunction) {
     try {
       const orderId = req.params.id;
-      // In a real implementation, this would fetch from delivery-service or a shared database
-      // For MVP, we'll return a mock list of offers if the order is PENDING
-      const order = await orderService.getOrder(orderId);
       
-      const offers = [
-        {
-          id: `offer-${Math.random().toString(36).substring(2, 8)}`,
-          orderId,
-          riderId: 'rider-1',
-          riderName: 'Kamal P.',
-          deliveryFee: 150,
-          estimatedMinutes: 15,
-          status: 'pending',
-          rating: '4.8',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: `offer-${Math.random().toString(36).substring(2, 8)}`,
-          orderId,
-          riderId: 'rider-2',
-          riderName: 'Sunil W.',
-          deliveryFee: 120,
-          estimatedMinutes: 25,
-          status: 'pending',
-          rating: '4.5',
-          createdAt: new Date().toISOString()
+      // Fetch actual offers from delivery-service
+      try {
+        const deliveryServiceUrl = process.env.DELIVERY_SERVICE__URL || 'http://localhost:3003';
+        const offersResponse = await fetch(`${deliveryServiceUrl}/deliveries/offers/${orderId}`, {
+          headers: { 'Authorization': `Bearer ${req.headers.authorization?.split(' ')[1] || ''}` }
+        });
+        
+        if (offersResponse.ok) {
+          const data:any = await offersResponse.json();
+          return res.json({ success: true, data: data.data || [] });
         }
-      ];
+      } catch (err) {
+        console.error('Failed to fetch offers from delivery-service:', err);
+      }
 
-      res.json({ success: true, data: offers });
+      // Fallback: return empty array if service unavailable
+      res.json({ success: true, data: [] });
     } catch (err) {
       next(err);
     }
@@ -163,10 +160,10 @@ export class OrderController {
         throw new ValidationError('You can only select offers for your own orders');
       }
 
-      // 2. Update order status to ASSIGNED (simulating the rider_selected step from context.md)
+      // 2. Update order status to RIDER_SELECTED (simulating the rider_selected step from context.md)
       // In a real system, this would trigger an event to delivery-service to create the delivery
       // and update the offers.
-      const updatedOrder = await orderService.updateOrderStatus(orderId, 'ASSIGNED');
+      const updatedOrder = await orderService.updateOrderStatus(orderId, 'rider_selected');
       
       res.json({ success: true, data: updatedOrder });
     } catch (err) {

@@ -29,6 +29,7 @@ const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service
 const DELIVERY_SERVICE_URL = process.env.DELIVERY_SERVICE_URL || 'http://delivery-service:3003';
 const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://product-service:3004';
 const CART_SERVICE_URL = process.env.CART_SERVICE_URL || 'http://cart-service:3005';
+const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://notification-service:3006';
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
 app.use(helmet());
@@ -136,6 +137,11 @@ app.use(
   proxyOptions(PRODUCT_SERVICE_URL, '/products')  //change according to path provided by backend
 );
 
+app.use(
+  '/api/deliveries',
+  authenticateToken,
+  proxyOptions(DELIVERY_SERVICE_URL, '/deliveries')  //change according to path provided by backend
+);
 // ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((_req: Request, _res: Response, next: NextFunction) => {
   next(new NotFoundError('Route not found'));

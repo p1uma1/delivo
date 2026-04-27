@@ -24,7 +24,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [socket, setSocket] = useState<Socket | null>(null);
 
   // Get user ID from local storage or wherever it is stored
-  const userId = localStorage.getItem('user_id') || 'temp_user';
+  const user: string | null = localStorage.getItem('user');
+  const userId = user ? JSON.parse(user).id : null;
 
   useEffect(() => {
     const NOTIFICATION_URL = import.meta.env.VITE_NOTIFICATION_SOCKET_URL || 'http://localhost:3006';

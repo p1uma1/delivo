@@ -1,5 +1,7 @@
 import { useRiderDashboard } from '../hooks/useRiderDashboard';
-import { CheckCircle, Banknote, MapPin, Star, Bell, Phone, Navigation, Activity } from 'lucide-react';
+import { CheckCircle, Banknote, MapPin, Star, Bell, Phone, Navigation, Activity, AlertCircle, Section } from 'lucide-react';
+import { PendingOrderCard } from '../components/PendingOrderCard';
+import { useState } from 'react';
 
 const steps = ['Order Placed', 'Confirmed', 'Preparing', 'On the Way', 'Delivered'];
 
@@ -20,6 +22,7 @@ const chartDays = [
 
 export const RiderDashboard = () => {
   const { data, loading, error } = useRiderDashboard();
+  const [refreshing, setRefreshing] = useState(false);
 
   return (
     <section style={{ display: 'grid', gap: 20 }}>
@@ -208,75 +211,96 @@ export const RiderDashboard = () => {
         </div>
 
         <div style={{ display: 'grid', gap: 16 }}>
-          <div className="card" style={{ padding: 0 }}>
-            <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--glass-border)', fontWeight: 700 }}>
-              Today's Deliveries
-            </div>
-            {data.recentDeliveries.map((delivery, index) => (
-              <div
-                key={delivery.id}
-                style={{
-                  padding: '14px 16px',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: 12,
-                  flexWrap: 'wrap',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      background: '#052e16',
-                      borderRadius: '50%',
-                      display: 'grid',
-                      placeItems: 'center',
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: '#6ee7b7',
-                    }}
-                  >
-                    {index + 1}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{delivery.customer}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>{delivery.address}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>{delivery.time}</div>
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#6ee7b7' }}>{delivery.earning}</div>
-                  <div style={{ fontSize: 12, color: '#fde68a', display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={10} fill={i < delivery.rating ? '#fde68a' : 'transparent'} color={i < delivery.rating ? '#fde68a' : '#374151'} />
-                    ))}
-                  </div>
-                </div>
+          {/* Pending Orders Section */}
+          {(data.pendingOrders?.length ?? 0) > 0 && (
+            <div className="card" style={{ padding: 0, gridColumn: '1 / -1' }}>
+              <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--glass-border)', fontWeight: 700, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>🔔 Pending Orders ({data.pendingOrders?.length || 0})</span>
+                <button
+                  onClick={() => setRefreshing(true)}
+                  className='btn'
+                  style={{ background: '#1f2937', color: '#cbd5e1', border: 'none', padding: '4px 8px', fontSize: 11, marginRight: -6 }}
+                  disabled={refreshing}
+                >
+                  Refresh
+                </button>
               </div>
-            ))}
-          </div>
+              <div style={{ padding: 16, display: 'grid', gap: 12 }}>
+                {data.pendingOrders?.map((order) => {
+                  const submittedOffer = data.submittedOffers?.find((o) => o.orderId === order.id);
+                  return (
+                    <PendingOrderCard
+                      key={order.id}
+                      order={order}
+                      onOfferSubmitted={() => setRefreshing(true)}
+                      submittedOfferFee={submittedOffer?.deliveryFee}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* No Pending Orders Message */}
+          {(data.pendingOrders?.length ?? 0) === 0 && !loading && (
+            <div
+              className='card'
+              style={{
+                padding: '16px 18px',
+                gridColumn: '1 / -1',
+                background: 'rgba(110, 231, 183, 0.05)',
+                border: '1px solid rgba(110, 231, 183, 0.2)',
+                textAlign: 'center',
+              }}
+            >
+              <p style={{ margin: '0 0 8px 0', color: '#6ee7b7', fontWeight: 600 }}>No pending orders at the moment</p>
+              <p style={{ margin: 0, fontSize: 13, color: 'var(--text-dim)' }}>New orders will appear here when customers create delivery requests</p>
+            </div>
+          )}
+                      {data.recentDeliveries.map((delivery, index) => (
+            <div key={delivery.id}>
+              {/* your recent delivery item content */}
+            </div>
+          ))}
 
           <div className="card" style={{ padding: '18px 20px' }}>
             <h3 style={{ marginBottom: 14 }}>Weekly Earnings</h3>
+
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 80 }}>
               {chartDays.map((day) => (
-                <div key={day.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div
+                  key={day.label}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
                   <div
                     style={{
                       width: '100%',
                       height: `${day.height}px`,
-                      background: day.label === 'S' ? 'linear-gradient(180deg,#6ee7b7,#06b6d4)' : '#1f2937',
+                      background:
+                        day.label === 'S'
+                          ? 'linear-gradient(180deg,#6ee7b7,#06b6d4)'
+                          : '#1f2937',
                       borderRadius: 6,
                     }}
                   />
-                  <div style={{ fontSize: 10, color: 'var(--text-dim)' }}>{day.label}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-dim)' }}>
+                    {day.label}
+                  </div>
                 </div>
               ))}
             </div>
+
             <div style={{ marginTop: 12, textAlign: 'center', fontSize: 13, color: 'var(--text-dim)' }}>
-              This week: <span style={{ color: '#6ee7b7', fontWeight: 700 }}>Rs 304.00</span>
+              This week:{' '}
+              <span style={{ color: '#6ee7b7', fontWeight: 700 }}>
+                Rs 304.00
+              </span>
             </div>
           </div>
         </div>

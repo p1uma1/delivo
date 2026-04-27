@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../../../shared/api/api';
-import { RiderDashboardData, RiderRecentDelivery, RiderTodayStat } from '../types/rider.types';
+import { RiderDashboardData, RiderRecentDelivery, RiderTodayStat, PendingOrder, DeliveryOffer } from '../types/rider.types';
 
 const fallbackStats: RiderTodayStat[] = [
   { label: 'Deliveries Done', value: '8', icon: 'deliveries', color: '#6ee7b7' },
@@ -36,6 +36,8 @@ const fallbackDashboard: RiderDashboardData = {
   },
   todayStats: fallbackStats,
   recentDeliveries: fallbackRecentDeliveries,
+  pendingOrders: [],
+  submittedOffers: [],
 };
 
 const deliveryStatusToStage: Record<string, number> = {
@@ -72,14 +74,24 @@ export const useRiderDashboard = () => {
         setLoading(true);
         setError(null);
 
-        const [profileResult, assignmentsResult] = await Promise.allSettled([
+        const [profileResult, assignmentsResult, pendingOrdersResult, submittedOffersResult] = await Promise.allSettled([
           api.get('/users/me'),
           api.get('/deliveries/rider/assignments'),
+          api.get('/orders/pending-orders'),
+          api.get('/deliveries/rider/my-offers'),
         ]);
 
         const profile = profileResult.status === 'fulfilled' ? profileResult.value.data?.data?.user : null;
         const assignmentsPayload = assignmentsResult.status === 'fulfilled' ? assignmentsResult.value.data?.data : null;
         const rawAssignments = Array.isArray(assignmentsPayload) ? assignmentsPayload : assignmentsPayload?.deliveries || [];
+        
+        // Fetch pending orders (orders waiting for rider offers)
+        const pendingOrdersData = pendingOrdersResult.status === 'fulfilled' ? pendingOrdersResult.value.data?.data : [];
+        const pendingOrders = Array.isArray(pendingOrdersData) ? pendingOrdersData : [];
+
+        // Fetch submitted offers
+        const submittedOffersData = submittedOffersResult.status === 'fulfilled' ? submittedOffersResult.value.data?.data : [];
+        const submittedOffers = Array.isArray(submittedOffersData) ? submittedOffersData : [];
 
         const mappedRecentDeliveries: RiderRecentDelivery[] = rawAssignments.slice(0, 4).map((delivery: any, index: number) => ({
           id: delivery.orderId || delivery.id || `#ORD-${8820 - index}`,
@@ -118,6 +130,8 @@ export const useRiderDashboard = () => {
           currentDelivery,
           todayStats: fallbackStats,
           recentDeliveries: mappedRecentDeliveries.length > 0 ? mappedRecentDeliveries : fallbackRecentDeliveries,
+          pendingOrders,
+          submittedOffers,
         });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load rider dashboard';

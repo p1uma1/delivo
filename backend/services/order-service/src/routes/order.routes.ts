@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { orderController } from '../controllers/order.controller';
-import { authenticateToken } from '@delivo/shared';
+import { authenticateToken, authorizeRole } from '@delivo/shared';
 
 const router = Router();
 
@@ -12,6 +12,11 @@ router.get('/stats', (req, res, next) => orderController.getCustomerStats(req, r
 
 // GET /orders - list my orders
 router.get('/', (req, res, next) => orderController.getMyOrders(req, res, next));
+
+// GET /orders/pending-orders - list orders waiting for rider offers (riders only)
+router.get('/pending-orders', authorizeRole('rider'), (req, res, next) => 
+  orderController.getPendingOrders(req, res, next)
+);
 
 // POST /orders - create order
 router.post('/', (req, res, next) => orderController.createOrder(req, res, next));

@@ -3,6 +3,62 @@ import { deliveryService } from '../services/delivery.service';
 import { ValidationError } from '@delivo/shared';
 
 export class DeliveryController {
+  async submitOffer(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { orderId, deliveryFee, estimatedMinutes } = req.body;
+      const riderId = req.user!.userId;
+
+      if (!orderId || deliveryFee === undefined) {
+        throw new ValidationError('orderId and deliveryFee are required');
+      }
+
+      if (typeof deliveryFee !== 'number' || deliveryFee <= 0) {
+        throw new ValidationError('deliveryFee must be a positive number');
+      }
+
+      const offer = await deliveryService.submitDeliveryOffer(
+        orderId,
+        riderId,
+        deliveryFee,
+        estimatedMinutes
+      );
+
+      res.status(201).json({ success: true, data: offer });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getOrderOffers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const orderId = req.params.orderId;
+      const offers = await deliveryService.getOrderOffers(orderId);
+      res.json({ success: true, data: offers });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getAvailableOrders(req: Request, res: Response, next: NextFunction) {
+    try {
+      const riderId = req.user!.userId;
+      const orders = await deliveryService.getAvailableOrders(riderId);
+      res.json({ success: true, data: orders });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getMyOffers(req: Request, res: Response, next: NextFunction) {
+    try {
+      const riderId = req.user!.userId;
+      const offers = await deliveryService.getRiderOffers(riderId);
+      res.json({ success: true, data: offers });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async assignRider(req: Request, res: Response, next: NextFunction) {
     try {
       const { deliveryId, riderId } = req.body;
