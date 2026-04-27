@@ -1,8 +1,5 @@
 import amqplib, { Connection, Channel, ConsumeMessage } from 'amqplib';
 import { createLogger } from '../logger';
-import dotenv from 'dotenv';
-import path from 'path';
-dotenv.config({ path: path.resolve(__dirname, '../../../../../.env') });
 
 const logger = createLogger('rabbitmq-client');
 

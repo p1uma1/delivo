@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Package, Mail, Lock, User as UserIcon, AlertCircle, ArrowRight } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
+import api from '../../../shared/api/api';
 
 interface SignupProps {
   onSuccess: (user: any) => void;
@@ -23,15 +24,10 @@ export const Signup: React.FC<SignupProps> = ({ onSuccess, onNavigateLogin }) =>
     const payload = { email, password, name, role: 'unassigned' };
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const response = await api.post('/auth/register', payload);
+      const result = response.data;
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Authentication failed');
       }
 
@@ -49,18 +45,14 @@ export const Signup: React.FC<SignupProps> = ({ onSuccess, onNavigateLogin }) =>
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          idToken: credentialResponse.credential,
-          role: 'unassigned'
-        }),
+      const response = await api.post('/auth/google', {
+        idToken: credentialResponse.credential,
+        role: 'unassigned'
       });
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Google authentication failed');
       }
 

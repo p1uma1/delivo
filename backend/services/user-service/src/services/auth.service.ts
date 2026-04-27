@@ -41,12 +41,12 @@ export class AuthService {
       role,
     });
 
-    // await publishEvent('user.created', {
-    //   userId: user.id,
-    //   email: user.email,
-    //   name: user.name,
-    //   role: user.role,
-    // });
+    await publishEvent('user.created', {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    });
 
     const tokens = await this.issueTokens(user.id, user.email, user.role);
     return { ...tokens, user };

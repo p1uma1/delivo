@@ -1,0 +1,85 @@
+# ─── ClusterIssuer — Let's Encrypt (Production) ───────────────────────────────
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: nimsarapiumalcoc@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+---
+# ─── Ingress ──────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: delivo-ingress
+  namespace: delivo
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+    # ── Security ──────────────────────────────────────────────────────────────
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+
+    # ── CORS ──────────────────────────────────────────────────────────────────
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://delivo.40.65.171.126.nip.io"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization, Content-Type"
+
+    # ── WebSocket timeouts (nginx-ingress handles Upgrade headers natively) ───
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+
+spec:
+  # Use ingressClassName instead of deprecated kubernetes.io/ingress.class annotation
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - delivo.40.65.171.126.nip.io
+        - api.delivo.40.65.171.126.nip.io
+        - ws.delivo.40.65.171.126.nip.io
+      secretName: delivo-tls
+  rules:
+    # ── Frontend ──────────────────────────────────────────────────────────────
+    - host: delivo.40.65.171.126.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-app
+                port:
+                  number: 80
+
+    # ── API Gateway ───────────────────────────────────────────────────────────
+    - host: api.delivo.40.65.171.126.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 3000
+
+    # ── WebSocket / Notification ──────────────────────────────────────────────
+    - host: ws.delivo.40.65.171.126.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 3006

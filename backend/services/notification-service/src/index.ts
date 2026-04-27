@@ -3,9 +3,6 @@ import { initSocketServer } from './socket';
 import { handleOrderCreated } from './handlers/orderCreated';
 import { handleDeliveryAssigned } from './handlers/deliveryAssigned';
 import { handleDeliveryStatusUpdated } from './handlers/deliveryUpdated';
-import dotenv from 'dotenv';
-import path from 'path';
-dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 const logger = createLogger('notification-service');
 
@@ -15,7 +12,7 @@ async function start() {
     await connectRabbitMQ();
 
     // Start Socket.io server
-    const socketPort = parseInt(process.env.NOTIFICATION_SOCKET_PORT || '3006');
+    const socketPort = parseInt(process.env.PORT || '3006');
     initSocketServer(socketPort);
 
     // Subscribe to all relevant events

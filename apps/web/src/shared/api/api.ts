@@ -1,8 +1,20 @@
 import axios from 'axios';
 
 // Create an Axios instance
+const bakedApiUrl = import.meta.env.VITE_API_URL;
+// Smart Fallback: If no VITE_API_URL, try to replace 'delivo' with 'api.delivo' in the current origin
+const fallbackUrl = window.location.origin.includes('delivo') 
+  ? window.location.origin.replace('delivo.', 'api.delivo.') 
+  : '';
+
+const API_URL = bakedApiUrl || fallbackUrl;
+console.warn('--- DELIVO API DEBUG ---');
+console.warn('Baked URL:', bakedApiUrl);
+console.warn('Fallback URL:', fallbackUrl);
+console.warn('Final API Base URL:', API_URL + '/api');
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_URL + '/api',
   // withCredentials: true, // Important to send refresh token cookies
 });
 
@@ -30,7 +42,7 @@ api.interceptors.response.use(
 
       try {
         // Try to refresh the token using the httpOnly cookie
-        const refreshResponse = await axios.post('/api/auth/refresh', {}, {
+        const refreshResponse = await axios.post(`${(import.meta.env.VITE_API_URL || '')}/api/auth/refresh`, {}, {
           withCredentials: true
         });
 

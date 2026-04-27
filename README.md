@@ -9,39 +9,45 @@ A delivery management system for small and medium businesses.
 ```
                             ┌─────────────────┐
                             │   Web Frontend  │  :5173
-                            │   (Vite + React)│
+                            │  (Vite + React) │
                             └────────┬────────┘
-                                     │
+                                     │  /api/* (Vite proxy)
                             ┌────────▼────────┐
                             │   API Gateway   │  :3000
-                            │  (Entry Point)  │
+                            │  JWT validation │
+                            │   + proxying    │
                             └────────┬────────┘
-                                     │  JWT pre-validation + proxying
-              ┌──────────────────────┼──────────────────────┐
-              │                      │                      │
-     ┌────────▼────────┐   ┌─────────▼───────┐   ┌─────────▼────────┐
-     │  User Service   │   │  Order Service  │   │ Delivery Service │
-     │     :3001       │   │     :3002       │   │     :3003        │
-     └────────┬────────┘   └────────┬────────┘   └────────┬─────────┘
-              │                     │                     │
-              └─────────────────────┼─────────────────────┘
-                                    │  Events via RabbitMQ
-                            ┌───────▼────────┐
-                            │ Notification   │
-                            │   Service      │  (no HTTP, event-only)
-                            └────────────────┘
+          ┌──────────┬───────────────┼───────────────┬──────────┐
+          │          │               │               │          │
+ ┌────────▼───┐ ┌────▼─────┐ ┌──────▼─────┐ ┌──────▼───┐ ┌────▼──────┐
+ │    User    │ │  Order   │ │  Delivery  │ │ Product  │ │   Cart    │
+ │  Service   │ │ Service  │ │  Service   │ │ Service  │ │  Service  │
+ │   :3001    │ │  :3002   │ │   :3003    │ │  :3004   │ │   :3005   │
+ └────────────┘ └────┬─────┘ └──────┬─────┘ └──────────┘ └───────────┘
+                     │              │
+                     └──────┬───────┘  Events via RabbitMQ
+                     ┌──────▼──────────────┐
+                     │   Notification      │
+                     │   Service  :3006    │  RabbitMQ subscriber
+                     │   (Socket.io)       │  + Socket.io push
+                     └─────────────────────┘
 ```
 
-## Applications & Services
+---
 
-| App | Path | Port | Description |
+## Services
+
+| Service | Path | Port | Description |
 |---|---|---|---|
-| **Web App** | `apps/web` | 5173 | 
-| **API Gateway** | `apps/api-gateway` | 3000 | Single entry point. Proxies to all services |
-| **User Service** | `apps/user-service` | 3001 | Auth, user profiles, roles |
-| **Order Service** | `apps/order-service` | 3002 | Create & manage delivery orders |
-| **Delivery Service** | `apps/delivery-service` | 3003 | Assign riders, track status |
-| **Notification Service** | `apps/notification-service` | — | Consumes events, sends alerts |
+| **Web App** | `apps/web` | 5173 | Vite + React frontend (Customer, Merchant, Rider, Admin dashboards) |
+| **API Gateway** | `backend/api-gateway` | 3000 | JWT pre-validation, request proxying |
+| **User Service** | `backend/services/user-service` | 3001 | Auth, registration, profiles, roles |
+| **Order Service** | `backend/services/order-service` | 3002 | Create & manage delivery orders |
+| **Delivery Service** | `backend/services/delivery-service` | 3003 | Rider offers, assignment, status tracking |
+| **Product Service** | `backend/services/product-service` | 3004 | Product & merchant catalogue |
+| **Cart Service** | `backend/services/cart-service` | 3005 | Shopping cart management |
+| **Notification Service** | `backend/services/notification-service` | 3006 | RabbitMQ subscriber + Socket.io real-time alerts |
+| **RabbitMQ** | — | 5672 / 15672 | Message broker (Management UI on 15672) |
 
 ---
 
@@ -49,29 +55,40 @@ A delivery management system for small and medium businesses.
 
 ### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed & running
-- [Node.js 20+](https://nodejs.org/) (for local development outside Docker)
+- [Node.js 20+](https://nodejs.org/) (only needed for local dev outside Docker)
 
 ### 1. Clone & configure
 ```bash
 git clone <repo-url>
 cd delivo
 cp .env.example .env
-# Edit .env with your secrets (JWT secrets at minimum)
+# Fill in your DATABASE_URL, JWT secrets, and Google Client ID
 ```
 
-### 2. Start all services
+### 2. Run everything with Docker
 ```bash
+# Development mode — hot-reload via volume mounts
+npm run dev
+
 # Production mode
 npm run up
 
-# Development mode (with hot-reload)
-npm run dev
+# Stop all containers
+npm run down
+
+# Stop and remove volumes (clears RabbitMQ data)
+npm run down:volumes
+
+# Stream logs from all containers
+npm run logs
 ```
 
-### 3. Verify
-- **Frontend:** http://localhost:5173
-- **API Gateway:** http://localhost:3000/health
-- **RabbitMQ Dashboard:** http://localhost:15672 (guest/guest)
+### 3. Verify services are up
+| URL | What |
+|---|---|
+| http://localhost:5173 | Web App |
+| http://localhost:3000/health | API Gateway |
+| http://localhost:15672 | RabbitMQ Management UI (`guest` / `guest`) |
 
 ---
 
@@ -80,39 +97,76 @@ npm run dev
 ```
 delivo/
 ├── apps/
-│   ├── web/             # Vite + React Frontend
-│   ├── api-gateway/     # Entry point
-│   ├── user-service/    # Auth & Users
-│   ├── order-service/   # Orders
-│   ├── delivery-service/# Deliveries
-│   └── notification-service/ # Event-only Service
-├── packages/
-│   └── shared/          # @delivo/shared — Shared Logic
-└── infra/
-    └── postgres/
-        └── init.sql     # Database initializations
+│   └── web/                  # Vite + React frontend
+│       ├── src/app/modules/  # customer / merchant / rider / admin
+│       └── Dockerfile
+├── backend/
+│   ├── api-gateway/          # Express reverse proxy
+│   ├── packages/
+│   │   └── shared/           # @delivo/shared — JWT, RabbitMQ, errors, logger
+│   └── services/
+│       ├── user-service/
+│       ├── order-service/
+│       ├── delivery-service/
+│       ├── product-service/
+│       ├── cart-service/
+│       ├── notification-service/
+│       └── admin-service/
+├── docs/
+│   └── context.md            # Canonical data model & business rules
+├── infra/
+│   └── postgres/init.sql     # Database schema bootstrap
+├── .env                      # Single source of truth for all env vars
+├── .env.example              # Template — copy to .env to get started
+├── docker-compose.yml        # Production service definitions
+└── docker-compose.override.yml  # Dev overrides (hot-reload mounts)
 ```
 
 ---
 
 ## Technology Stack
 
-- **Frontend:** React + Vite + TypeScript 
-- **Backend Runtime:** Node.js 20 + TypeScript
-- **Framework:** Express.js
-- **Database:** PostgreSQL 
-- **Message Broker:** RabbitMQ 3.13
-- **Containers:** Docker + Docker Compose
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18, Vite, TypeScript |
+| **Backend** | Node.js 20, Express.js, TypeScript |
+| **Shared Lib** | `@delivo/shared` — JWT helpers, RabbitMQ client, error classes, logger |
+| **Database** | PostgreSQL (hosted on Supabase for dev) |
+| **Message Broker** | RabbitMQ 3.13 (topic exchange `delivo.events`) |
+| **Real-time** | Socket.io (notification-service) |
+| **Containers** | Docker + Docker Compose |
+| **Auth** | JWT (access + refresh tokens), Google OAuth |
 
 ---
 
-## Adding a New App or Service
+## User Roles
 
-### 1. Create the Folder
-Create a new directory in `backend/services`, for example: `services/billing-service`.
+| Role | Access |
+|---|---|
+| `customer` | Browse products, place orders, track deliveries |
+| `merchant` | Manage products, view incoming orders |
+| `rider` | Browse pending orders, submit delivery fee offers, track assignments |
+| `admin` | Platform-wide dashboard, user management |
 
-### 2. Scaffold the Service
-The easiest way is to copy the `package.json`, `tsconfig.json`, and `Dockerfile` from an existing service (like `order-service`) and update the names. Update all `Dockerfile` paths to reflect the `apps/` directory.
+---
 
-### 3. Register in Docker Compose
-Add your service to `docker-compose.yml`. Ensure the `build.context` is set to the root `./` and `dockerfile` points to `apps/your-service/Dockerfile`.
+## Event Bus
+
+All inter-service communication happens via RabbitMQ on the `delivo.events` topic exchange.
+
+| Event | Publisher | Subscribers |
+|---|---|---|
+| `order.created` | order-service | delivery-service, notification-service |
+| `order.cancelled` | order-service | delivery-service |
+| `delivery.assigned` | delivery-service | notification-service |
+| `delivery.status.updated` | delivery-service | notification-service |
+
+---
+
+## Adding a New Service
+
+1. **Create the folder** under `backend/services/your-service/`
+2. **Copy** `package.json`, `tsconfig.json`, and `Dockerfile` from `order-service` and update names
+3. **Add to `docker-compose.yml`** — set `build.context: .`, `dockerfile: backend/services/your-service/Dockerfile`, and `env_file: .env`
+4. **Add a dev override** in `docker-compose.override.yml` with volume mounts for hot-reload
+5. **Register the route** in `backend/api-gateway/src/index.ts`

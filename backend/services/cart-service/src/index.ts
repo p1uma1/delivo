@@ -1,7 +1,3 @@
-import dotenv from 'dotenv';
-import path from 'path';
-dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
-
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -10,7 +6,7 @@ import cartRoutes from './routes/cart.routes';
 
 const logger = createLogger('cart-service');
 const app = express();
-const PORT = process.env.CART_SERVICE_PORT || 3005;
+const PORT = process.env.PORT || 3005;
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(helmet());

@@ -1,4 +1,3 @@
-import { sendEmail } from '../channels/email';
 import { createLogger, subscribeEvent } from '@delivo/shared';
 import { sendNotificationToUser, broadcastNotification } from '../socket';
 
@@ -6,13 +5,6 @@ const logger = createLogger('notification-service:handlers');
 
 export async function handleOrderCreated(payload: any) {
   logger.info(`Handling order.created for order ${payload.orderId}`);
-
-  // Notify customer via email
-  await sendEmail({
-    to: payload.email || 'customer@example.com',
-    subject: 'Order Received - Delivo',
-    body: `Hi! Your order ${payload.orderId} has been received and is being processed.`,
-  });
 
   // Notify customer via socket
   sendNotificationToUser(payload.customerId, 'notification', {

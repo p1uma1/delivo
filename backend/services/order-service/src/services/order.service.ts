@@ -28,7 +28,7 @@ export class OrderService {
 
     // Reserve stock synchronously before creating order
     try {
-      const productServiceUrl = process.env.PRODUCT_SERVICE_INTERNAL_URL || 'http://localhost:3004';
+      const productServiceUrl = process.env.PRODUCT_SERVICE_URL || 'http://product-service:3004';
       const reserveResponse = await fetch(`${productServiceUrl}/products/reserve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

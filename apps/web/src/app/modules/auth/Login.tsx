@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Package, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
+import api from '../../../shared/api/api';
 
 interface LoginProps {
   onSuccess: (user: any) => void;
@@ -19,15 +20,10 @@ export const Login: React.FC<LoginProps> = ({ onSuccess, onNavigateSignup }) => 
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await api.post('/auth/login', { email, password });
+      const result = response.data;
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Authentication failed');
       }
 
@@ -45,15 +41,13 @@ export const Login: React.FC<LoginProps> = ({ onSuccess, onNavigateSignup }) => 
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken: credentialResponse.credential }), // Note: role is not sent, defaults to unassigned backend-side
+      const response = await api.post('/auth/google', {
+        idToken: credentialResponse.credential,
       });
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.error?.message || 'Google authentication failed');
       }
 

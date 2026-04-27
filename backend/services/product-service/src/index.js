@@ -1,9 +1,3 @@
-const dotenv = require('dotenv');
-const path = require('path');
-
-dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
-
-
 const express = require("express");
 const cors = require("cors");
 
@@ -24,7 +18,7 @@ app.get("/", (req, res) => {
   res.send("Product Service Running");
 });
 
-const PORT = process.env.PRODUCT_SERVICE_PORT || 3004;
+const PORT = process.env.PORT || 3004;
 
 async function start() {
   try {
