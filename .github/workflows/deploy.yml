@@ -162,6 +162,13 @@ jobs:
             --from-literal=RABBITMQ_URL="amqp://guest:guest@rabbitmq:5672" \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      # Replace placeholders in K8s manifests dynamically
+      - name: Substitute Variables in K8s Manifests
+        run: |
+          find k8s/ -name "*.yaml" -exec sed -i "s/YOUR_DOMAIN/${{ secrets.APP_DOMAIN }}/g" {} +
+          find k8s/ -name "*.yaml" -exec sed -i "s/YOUR_ACR_REGISTRY/${{ secrets.ACR_REGISTRY }}/g" {} +
+          sed -i "s/YOUR_EMAIL/${{ secrets.LETSENCRYPT_EMAIL }}/g" k8s/ingress.yaml || true
+
       # Apply infrastructure manifests (namespace, configmap, ingress, services)
       - name: Apply K8s manifests
         run: kubectl apply -f k8s/ --recursive --namespace=$K8S_NAMESPACE
